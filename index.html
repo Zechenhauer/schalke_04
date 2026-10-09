@@ -207,40 +207,7 @@
             white-space: nowrap;
         }
 
-        /* LEGENDEN LISTE STYLING (SCROLLBAR) */
-        .legends-list {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            max-height: 110px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-        .legends-list::-webkit-scrollbar { width: 5px; }
-        .legends-list::-webkit-scrollbar-thumb { background: var(--s04-blue); border-radius: 3px; }
-
-        .legend-item-link {
-            background: rgba(0, 77, 157, 0.2);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 4px 8px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 0.8rem;
-            font-weight: normal;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background 0.2s, border-color 0.2s;
-            cursor: pointer;
-        }
-        .legend-item-link:hover {
-            background: var(--s04-blue);
-            border-color: var(--s04-bright-blue);
-            color: #ffffff;
-        }
-
-        /* POPUP MODAL STYLING */
+        /* POPUP MODAL FÜR LEGENDEN */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -292,6 +259,39 @@
             transition: background 0.2s;
         }
         .modal-close-btn:hover { background: var(--s04-bright-blue); }
+
+        /* LEGENDEN LISTE STYLING (SCROLLBAR) */
+        .legends-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-height: 110px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .legends-list::-webkit-scrollbar { width: 5px; }
+        .legends-list::-webkit-scrollbar-thumb { background: var(--s04-blue); border-radius: 3px; }
+
+        .legend-item-link {
+            background: rgba(0, 77, 157, 0.2);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: normal;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s, border-color 0.2s;
+            cursor: pointer;
+        }
+        .legend-item-link:hover {
+            background: var(--s04-blue);
+            border-color: var(--s04-bright-blue);
+            color: #ffffff;
+        }
 
         /* FORM-DOTS */
         .form-container {
@@ -658,7 +658,7 @@
                     <tr>
                         <th style="width: 130px; color: #ffffff;">Termin</th>
                         <th style="text-align: right;">Heimmannschaft</th>
-                        <th style="text-align: center; width: 130px;">Ergebnis</th>
+                        <th style="text-align: center; width: 180px;">Ergebnis</th>
                         <th>Gastmannschaft</th>
                     </tr>
                 </thead>
@@ -815,11 +815,10 @@
             }
         }
 
-        // Intelligente Spieltag-Ermittlung: Findet den Spieltag mit dem nächsten noch nicht beendeten Spiel
         try {
             let foundMatchday = null;
             for (let d = 1; d <= 34; d++) {
-                let res = await fetch(`https://api.openligadb.de/getmatchdata/\${leagueShortcut}/${seasonYear}/${d}`);
+                let res = await fetch(`https://api.openligadb.de/getmatchdata/${leagueShortcut}/${seasonYear}/${d}`);
                 if (res.ok) {
                     let matches = await res.json();
                     if (Array.isArray(matches) && matches.length > 0) {
@@ -841,7 +840,6 @@
         await loadTable();
         await loadMatchday(currentMatchday);
 
-        // Live-Aktualisierung im Hintergrund alle 60 Sekunden
         setInterval(async () => {
             try {
                 await loadTable();
@@ -1015,16 +1013,22 @@
             matches.forEach(match => {
                 let hTeam = match.team1.teamName;
                 let aTeam = match.team2.teamName;
+                let hId = match.team1.teamId;
+                let aId = match.team2.teamId;
                 
                 if (hTeam.toLowerCase().includes('schalke') || aTeam.toLowerCase().includes('schalke')) {
                     if (Array.isArray(match.goals) && match.goals.length > 0) {
                         match.goals.forEach(g => {
-                            let scoringTeam = g.teamId === match.team1.teamId ? hTeam : aTeam;
+                            let scoringTeam = (g.teamId === hId) ? hTeam : ((g.teamId === aId) ? aTeam : hTeam);
                             if (scoringTeam.toLowerCase().includes('schalke')) {
+                                let hPts = (g.scoreTeam1 !== null && g.scoreTeam1 !== undefined) ? g.scoreTeam1 : g.scoreGoal1;
+                                let aPts = (g.scoreTeam2 !== null && g.scoreTeam2 !== undefined) ? g.scoreTeam2 : g.scoreGoal2;
+                                let scoreStr = (hPts !== undefined && aPts !== undefined) ? `${hPts}:${aPts}` : "";
+
                                 schalkeGoals.push({
                                     minute: g.matchMinute || '?',
                                     player: g.goalGetterName || 'Unbekannt',
-                                    score: `${g.scoreTeam1}:${g.scoreTeam2}`,
+                                    score: scoreStr,
                                     matchName: `${hTeam} vs ${aTeam}`
                                 });
                             }
@@ -1149,6 +1153,23 @@
 
             let scoreDisplay = `<span style="color:var(--text-muted);">${dateStr} — ${timeStr} Uhr</span>`;
             
+            let apiScorers = [];
+            if (match.goals && Array.isArray(match.goals)) {
+                match.goals.forEach(goal => {
+                    let name = goal.goalGetterName;
+                    if (name) {
+                        let min = (goal.matchMinute !== null && goal.matchMinute !== undefined) ? goal.matchMinute + "'" : "";
+                        let hPts = (goal.scoreTeam1 !== null && goal.scoreTeam1 !== undefined) ? goal.scoreTeam1 : goal.scoreGoal1;
+                        let aPts = (goal.scoreTeam2 !== null && goal.scoreTeam2 !== undefined) ? goal.scoreTeam2 : goal.scoreGoal2;
+                        
+                        let scoreStr = (hPts !== undefined && aPts !== undefined) ? ` (${hPts}:${aPts})` : "";
+                        let minStr = min ? ` (${min})` : "";
+                        apiScorers.push(`⚽ ${name}${minStr}${scoreStr}`);
+                    }
+                });
+            }
+            let scorersHtml = apiScorers.length > 0 ? `<div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 6px; line-height: 1.4;">${apiScorers.join('<br>')}</div>` : "";
+
             if (match.matchIsFinished) {
                 let homeGoals = 0, awayGoals = 0;
                 if (match.matchResults && match.matchResults.length > 0) {
@@ -1156,19 +1177,18 @@
                     homeGoals = res.pointsTeam1;
                     awayGoals = res.pointsTeam2;
                 }
-                scoreDisplay = `<strong>${homeGoals} : ${awayGoals}</strong> <span style="font-size:0.7rem; color:var(--text-muted);">(Endstand)</span>`;
+                scoreDisplay = `<strong>${homeGoals} : ${awayGoals}</strong> <span style="font-size:0.7rem; color:var(--text-muted);">(Endstand)</span>${scorersHtml}`;
             } else if (match.goals && match.goals.length > 0) {
                 let lastGoal = match.goals[match.goals.length - 1];
-                scoreDisplay = `<span style="color:#3fb950; font-weight:bold;">LIVE ${lastGoal.scoreTeam1}:${lastGoal.scoreTeam2}</span>`;
+                scoreDisplay = `<span style="color:#3fb950; font-weight:bold;">LIVE ${lastGoal.scoreTeam1}:${lastGoal.scoreTeam2}</span>${scorersHtml}`;
             } else if (now >= dateObj && !match.matchIsFinished) {
-                // Wenn die Anstoßzeit erreicht ist, aber noch keine Tore gefallen sind:
                 let hGoals = 0, aGoals = 0;
                 if (match.matchResults && match.matchResults.length > 0) {
                     let res = match.matchResults.find(r => r.resultName === 'Halbzeitergebnis' || r.resultName === 'Endergebnis') || match.matchResults[0];
                     hGoals = res.pointsTeam1;
                     aGoals = res.pointsTeam2;
                 }
-                scoreDisplay = `<span style="color:#3fb950; font-weight:bold;">LIVE ${hGoals}:${aGoals}</span>`;
+                scoreDisplay = `<span style="color:#3fb950; font-weight:bold;">LIVE ${hGoals}:${aGoals}</span>${scorersHtml}`;
             }
 
             let homeContent = getTeamHtml(homeName, homeIcon, true);
@@ -1178,10 +1198,10 @@
             if (awayName.toLowerCase().includes('schalke')) awayContent = `<span class="s04-highlight">${awayContent}</span>`;
 
             tr.innerHTML = `
-                <td style="font-size: 0.8rem; color: #ffffff;">${dateStr} — ${timeStr}</td>
-                <td style="text-align: right;">Heim: ${homeContent}</td>
-                <td style="text-align: center;">${scoreDisplay}</td>
-                <td>Gast: ${awayContent}</td>
+                <td style="font-size: 0.8rem; color: #ffffff; vertical-align: top;">${dateStr} — ${timeStr}</td>
+                <td style="text-align: right; vertical-align: top;">Heim: ${homeContent}</td>
+                <td style="text-align: center; vertical-align: top;">${scoreDisplay}</td>
+                <td style="vertical-align: top;">Gast: ${awayContent}</td>
             `;
             tbody.appendChild(tr);
         });
