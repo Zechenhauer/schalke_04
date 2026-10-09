@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔵 FC Schalke 04 — 1. Bundesliga App</title>
+    <title>🔵 FC Schalke 04</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2222%22 fill=%22%23004d9d%22/><text x=%2250%22 y=%2270%22 font-size=%2260%22 text-anchor=%22middle%22>⚽</text></svg>">
     <!-- Supabase Client Bibliothek laden -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -575,7 +575,7 @@
             </div>
         </div>
 
-        <!-- Kachel 5: Schalke-Legenden (Ehrenkabine mit Pop-up - chronologisch nach Ära/Verstorbenen oben) -->
+        <!-- Kachel 5: Schalke-Legenden (Ehrenkabine mit Pop-up) -->
         <div class="dash-card">
             <div class="dash-header">
                 <span>⭐ Schalke-Legenden (Ehrenkabine)</span>
@@ -646,10 +646,10 @@
 
     <!-- SPIELTAGS-TABELLE -->
     <div class="section-box">
-        <div class="section-header" id="matchdayTableHeader">Spieltag 4</div>
+        <div class="section-header" id="matchdayTableHeader">Spieltag --</div>
         <div class="matchday-controls">
             <button class="matchday-btn" onclick="changeMatchday(-1)">◀ Vorheriger</button>
-            <strong id="matchdayDisplay" style="color: var(--s04-bright-blue); font-size: 1.1rem;">Spieltag 4</strong>
+            <strong id="matchdayDisplay" style="color: var(--s04-bright-blue); font-size: 1.1rem;">Spieltag --</strong>
             <button class="matchday-btn" onclick="changeMatchday(1)">Nächster ▶</button>
         </div>
         <div class="table-container">
@@ -671,7 +671,7 @@
 
     <!-- TORSCHÜTZEN -->
     <div class="section-box">
-        <div class="section-header" id="matchdayScorersHeader">⚽ Schalke-Torschützen — Spieltag 4</div>
+        <div class="section-header" id="matchdayScorersHeader">⚽ Schalke-Torschützen</div>
         <div class="table-container">
             <table>
                 <thead>
@@ -737,7 +737,6 @@
     let teamLogos = {};
     let teamApiIcons = {};
 
-    // POPUP STEUERUNG
     function openLegendModal(name, role, desc) {
         document.getElementById('modalLegendName').textContent = name;
         document.getElementById('modalLegendRole').textContent = role;
@@ -793,7 +792,7 @@
         slideInterval = setInterval(() => { showSlide(currentSlideIndex + 1); }, 5000);
     }
 
-    let currentMatchday = 4;
+    let currentMatchday = 5; // Start-Fallback
     let maxMatchday = 34;
     const leagueShortcut = 'bl1';
     let seasonYear = '2026';
@@ -814,6 +813,31 @@
             } catch (e) {
                 console.log("Logos konnten nicht aus Cloud geladen werden", e);
             }
+        }
+
+        // Intelligente Spieltag-Ermittlung: Findet den Spieltag mit dem nächsten noch nicht beendeten Spiel
+        try {
+            let foundMatchday = null;
+            // Wir suchen in den Spieltagen ab dem aktuellen Fallback (z.B. ab Spieltag 1 bis 34)
+            for (let d = 1; d <= 34; d++) {
+                let res = await fetch(`https://api.openligadb.de/getmatchdata/\${leagueShortcut}/${seasonYear}/${d}`);
+                if (res.ok) {
+                    let matches = await res.json();
+                    if (Array.isArray(matches) && matches.length > 0) {
+                        // Prüfen, ob es in diesem Spieltag noch ein Spiel gibt, das NICHT beendet ist
+                        let hasUnfinished = matches.some(m => !m.matchIsFinished);
+                        if (hasUnfinished) {
+                            foundMatchday = d;
+                            break; // Gefunden! Das ist der aktuelle/nächste relevante Spieltag
+                        }
+                    }
+                }
+            }
+            if (foundMatchday) {
+                currentMatchday = foundMatchday;
+            }
+        } catch (e) {
+            console.log("Konnte automatischen Live-Spieltag nicht ermitteln, nutze Standard.", e);
         }
 
         await loadTable();
@@ -1146,9 +1170,9 @@
 
             tr.innerHTML = `
                 <td style="font-size: 0.8rem; color: #ffffff;">${dateStr} — ${timeStr}</td>
-                <td style="text-align: right;">${homeContent}</td>
+                <td style="text-align: right;">Heim: ${homeContent}</td>
                 <td style="text-align: center;">${scoreDisplay}</td>
-                <td>${awayContent}</td>
+                <td>Gast: ${awayContent}</td>
             `;
             tbody.appendChild(tr);
         });
