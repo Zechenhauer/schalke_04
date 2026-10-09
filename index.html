@@ -818,17 +818,15 @@
         // Intelligente Spieltag-Ermittlung: Findet den Spieltag mit dem nächsten noch nicht beendeten Spiel
         try {
             let foundMatchday = null;
-            // Wir suchen in den Spieltagen ab dem aktuellen Fallback (z.B. ab Spieltag 1 bis 34)
             for (let d = 1; d <= 34; d++) {
                 let res = await fetch(`https://api.openligadb.de/getmatchdata/\${leagueShortcut}/${seasonYear}/${d}`);
                 if (res.ok) {
                     let matches = await res.json();
                     if (Array.isArray(matches) && matches.length > 0) {
-                        // Prüfen, ob es in diesem Spieltag noch ein Spiel gibt, das NICHT beendet ist
                         let hasUnfinished = matches.some(m => !m.matchIsFinished);
                         if (hasUnfinished) {
                             foundMatchday = d;
-                            break; // Gefunden! Das ist der aktuelle/nächste relevante Spieltag
+                            break;
                         }
                     }
                 }
@@ -1130,6 +1128,8 @@
             return;
         }
 
+        let now = new Date();
+
         data.forEach(match => {
             let homeName = match.team1.teamName;
             let awayName = match.team2.teamName;
@@ -1160,6 +1160,15 @@
             } else if (match.goals && match.goals.length > 0) {
                 let lastGoal = match.goals[match.goals.length - 1];
                 scoreDisplay = `<span style="color:#3fb950; font-weight:bold;">LIVE ${lastGoal.scoreTeam1}:${lastGoal.scoreTeam2}</span>`;
+            } else if (now >= dateObj && !match.matchIsFinished) {
+                // Wenn die Anstoßzeit erreicht ist, aber noch keine Tore gefallen sind:
+                let hGoals = 0, aGoals = 0;
+                if (match.matchResults && match.matchResults.length > 0) {
+                    let res = match.matchResults.find(r => r.resultName === 'Halbzeitergebnis' || r.resultName === 'Endergebnis') || match.matchResults[0];
+                    hGoals = res.pointsTeam1;
+                    aGoals = res.pointsTeam2;
+                }
+                scoreDisplay = `<span style="color:#3fb950; font-weight:bold;">LIVE ${hGoals}:${aGoals}</span>`;
             }
 
             let homeContent = getTeamHtml(homeName, homeIcon, true);
