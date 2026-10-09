@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔵 FC Schalke 04 — 1. Bundesliga App</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2222%22 fill=%22%23004d9d%22/><text x=%2250%22 y=%2270%22 font-size=%2260%22 text-anchor=%22middle%22>⚽</text></svg>">
+    <!-- Supabase Client Bibliothek laden -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-color: #070d1a;
+            --card-bg: #0d1b33;
+            --text-color: #f0f6fc;
+            --text-muted: #8b949e;
+            --border-color: #1e3a6e;
+            --s04-blue: #004d9d;
+            --s04-dark: #002b5c;
+            --s04-gold: #ffcc00;
+            --s04-bright-blue: #3385ff;
+            --win-color: #2ea043;
+            --draw-color: #bb8009;
+            --loss-color: #da3633;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 77, 157, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 77, 157, 0.2);
+        }
+
+        /* SLIDESHOW */
+        .banner-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #070d1a;
+            border: 2px solid var(--s04-blue);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            padding: 10px;
+            box-shadow: 0 4px 15px rgba(0, 77, 157, 0.3);
+            position: relative;
+        }
+
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 380px;
+            background-color: #050b14;
+            overflow: hidden;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .slide-caption {
+            margin-top: 8px;
+            font-size: 0.95rem;
+            color: var(--s04-gold);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .slide-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 43, 92, 0.8);
+            color: white;
+            border: 1px solid var(--s04-blue);
+            padding: 10px 14px;
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 4px;
+            transition: background 0.2s;
+            z-index: 10;
+        }
+        .slide-btn:hover { background: var(--s04-blue); }
+        .slide-prev { left: 10px; }
+        .slide-next { right: 10px; }
+
+        /* TITLE ROW MIT LOGOS */
+        .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 5px;
+        }
+
+        .header-logo {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            object-fit: contain;
+            border: 2px solid var(--s04-blue);
+            background: #ffffff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            padding: 2px;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 0;
+            color: #ffffff;
+            font-size: 1.6rem;
+            font-weight: 800;
+        }
+        h2 span { color: var(--s04-bright-blue); }
+
+        .subtitle {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .meta-info {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        /* DASHBOARD GRID */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .dash-card {
+            background: #070d1a;
+            border: 1px solid var(--s04-blue);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 140px;
+            box-shadow: 0 2px 10px rgba(0, 77, 157, 0.15);
+        }
+
+        .dash-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--s04-bright-blue);
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .dash-content {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .dash-badge {
+            background: rgba(0, 77, 157, 0.3);
+            border: 1px solid var(--s04-blue);
+            color: var(--s04-gold);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        /* LEGENDEN LISTE STYLING (SCROLLBAR) */
+        .legends-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-height: 110px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .legends-list::-webkit-scrollbar { width: 5px; }
+        .legends-list::-webkit-scrollbar-thumb { background: var(--s04-blue); border-radius: 3px; }
+
+        .legend-item-link {
+            background: rgba(0, 77, 157, 0.2);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: normal;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s, border-color 0.2s;
+            cursor: pointer;
+        }
+        .legend-item-link:hover {
+            background: var(--s04-blue);
+            border-color: var(--s04-bright-blue);
+            color: #ffffff;
+        }
+
+        /* POPUP MODAL STYLING */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 11, 20, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+        .modal-box {
+            background: var(--card-bg);
+            border: 2px solid var(--s04-blue);
+            border-radius: 12px;
+            padding: 25px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 10px 30px rgba(0, 77, 157, 0.4);
+            position: relative;
+            text-align: center;
+        }
+        .modal-title {
+            color: var(--s04-gold);
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        .modal-subtitle {
+            color: var(--s04-bright-blue);
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .modal-text {
+            color: var(--text-color);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        .modal-close-btn {
+            background: var(--s04-blue);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .modal-close-btn:hover { background: var(--s04-bright-blue); }
+
+        /* FORM-DOTS */
+        .form-container {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .form-dot {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .form-s { background-color: var(--win-color); }
+        .form-u { background-color: var(--draw-color); }
+        .form-n { background-color: var(--loss-color); }
+
+        /* FAN-ECKE QUICK LINKS */
+        .fan-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+        .fan-btn {
+            background: var(--s04-dark);
+            border: 1px solid var(--s04-blue);
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transition: background 0.2s, border-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .fan-btn:hover { background: var(--s04-blue); border-color: var(--s04-bright-blue); }
+
+        .action-link {
+            background: none;
+            border: none;
+            color: var(--s04-bright-blue);
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 0;
+            text-transform: uppercase;
+            transition: color 0.2s;
+        }
+        .action-link:hover { color: var(--s04-gold); text-decoration: underline; }
+
+        .section-box {
+            background: #070d1a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .section-header {
+            background-color: var(--s04-blue);
+            color: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 10px 15px;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0, 77, 157, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .table-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            padding: 8px 10px;
+            background: #050b14;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            align-items: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-box {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .matchday-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .matchday-btn {
+            background: #112240;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .matchday-btn:hover { background: var(--s04-dark); border-color: var(--s04-blue); }
+
+        .s04-highlight { color: var(--s04-bright-blue) !important; font-weight: bold; }
+
+        tr.s04-match-row {
+            background: rgba(0, 77, 157, 0.15);
+            border-left: 3px solid var(--s04-blue);
+            border-right: 3px solid var(--s04-blue);
+        }
+        tr.s04-match-row td {
+            border-top: 1px solid rgba(0, 77, 157, 0.3);
+            border-bottom: 1px solid rgba(0, 77, 157, 0.3);
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+        th {
+            background-color: var(--s04-dark);
+            color: #ffffff;
+            padding: 10px 8px;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            border-bottom: 2px solid var(--s04-blue);
+        }
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+        tr:hover { background-color: rgba(0, 77, 157, 0.05); }
+
+        tr.cl-zone td { background: rgba(35, 134, 54, 0.18); border-left: 3px solid #2ea043; }
+        tr.el-zone td { background: rgba(51, 133, 255, 0.18); border-left: 3px solid var(--s04-bright-blue); }
+        tr.ecl-zone td { background: rgba(158, 106, 3, 0.18); border-left: 3px solid #bb8009; }
+        tr.relegation-zone td { background: rgba(227, 179, 0, 0.2); border-left: 3px solid var(--s04-gold); }
+        tr.relegation-direct-zone td { background: rgba(180, 40, 40, 0.3); border-left: 3px solid #da3633; }
+
+        tr.s04-team-row td {
+            font-weight: bold;
+            color: var(--s04-bright-blue);
+            background: rgba(0, 77, 157, 0.25) !important;
+            border-top: 1px solid rgba(0, 77, 157, 0.5);
+            border-bottom: 1px solid rgba(0, 77, 157, 0.5);
+        }
+
+        .team-cell-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .team-mini-logo {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+        .loading-text {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 20px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- POPUP MODAL FÜR LEGENDEN -->
+    <div class="modal-overlay" id="legendModal" onclick="closeLegendModal(event)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-title" id="modalLegendName">Legenden-Name</div>
+            <div class="modal-subtitle" id="modalLegendRole">Position / Ära</div>
+            <div class="modal-text" id="modalLegendDesc">Beschreibung und historische Daten der Legende.</div>
+            <button class="modal-close-btn" onclick="closeLegendModal()">Schließen</button>
+        </div>
+    </div>
+
+    <!-- SLIDESHOW -->
+    <div class="banner-wrapper">
+        <div class="slideshow-container">
+            <button class="slide-btn slide-prev" onclick="prevSlide()">❮</button>
+            <img id="slideImage" src="" alt="Schalke Diashow" class="slide-img">
+            <button class="slide-btn slide-next" onclick="nextSlide()">❯</button>
+        </div>
+        <div class="slide-caption" id="slideCaption">Mannschaft</div>
+    </div>
+
+    <!-- SCHALKE LOGO & TITEL DIREKT UNTER DEM BANNER -->
+    <div class="title-row" style="margin-top: 15px; margin-bottom: 15px;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6d/FC_Schalke_04_Logo.svg" alt="S04 Logo" class="header-logo">
+        <h2>FC Schalke <span>04</span></h2>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6d/FC_Schalke_04_Logo.svg" alt="S04 Logo" class="header-logo">
+    </div>
+    <div class="subtitle">1. Bundesliga — Live & Cloud-Daten</div>
+    <div class="meta-info">
+        <span>⚡ OpenLigaDB & Supabase Logos</span>
+        <span id="apiStatus" style="color: #3fb950;">● Live-Aktualisierung aktiv</span>
+    </div>
+
+    <!-- DASHBOARD GRID -->
+    <div class="dashboard-grid">
+        <!-- Kachel 1: Nächstes Spiel mit Countdown -->
+        <div class="dash-card">
+            <div class="dash-header">
+                <span>⏳ Nächstes Spiel</span>
+            </div>
+            <div class="dash-content" id="nextMatchText">Wird geladen...</div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+                <div class="dash-badge" id="countdownBadge">-- : -- : -- : --</div>
+            </div>
+        </div>
+
+        <!-- Kachel 2: Letztes Pflichtspiel -->
+        <div class="dash-card">
+            <div class="dash-header">
+                <span>🏁 Letztes Pflichtspiel</span>
+            </div>
+            <div class="dash-content" id="lastMatchText">Wird geladen...</div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+                <div class="dash-badge" id="lastMatchScoreBadge">- : -</div>
+            </div>
+        </div>
+
+        <!-- Kachel 3: Formkurve -->
+        <div class="dash-card">
+            <div class="dash-header">
+                <span>📈 Formkurve (Letzte Spiele)</span>
+            </div>
+            <div class="dash-content" id="formContainer" style="display: flex; align-items: center; min-height: 35px;">
+                <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: normal;">Ermittle Form...</span>
+            </div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">S = Sieg | U = Unentschieden | N = Niederlage</div>
+        </div>
+
+        <!-- Kachel 4: Heim- & Auswärtsbilanz -->
+        <div class="dash-card">
+            <div class="dash-header">
+                <span>🏟️ Heim vs. Auswärts</span>
+            </div>
+            <div class="dash-content" id="homeAwayStatsText" style="font-size: 0.85rem; font-weight: normal; line-height: 1.5;">
+                Heim: Wird geladen...<br>Auswärts: Wird geladen...
+            </div>
+        </div>
+
+        <!-- Kachel 5: Schalke-Legenden (Ehrenkabine mit Pop-up - chronologisch nach Ära/Verstorbenen oben) -->
+        <div class="dash-card">
+            <div class="dash-header">
+                <span>⭐ Schalke-Legenden (Ehrenkabine)</span>
+            </div>
+            <div class="dash-content">
+                <div class="legends-list">
+                    <div class="legend-item-link" onclick="openLegendModal('Ernst Kuzorra & Fritz Szepan', 'Die Köpfe des Schalker Kreisels', 'Die absoluten Urgesteine und Spielgestalter der legendären Meisterjahre in den 1930er und 40er Jahren. Sie stehen für den Mythos und die Spielkultur des FC Schalke 04.')">
+                        <span>Kuzorra & Szepan</span> <span style="color:var(--s04-gold);">➔</span>
+                    </div>
+                    <div class="legend-item-link" onclick="openLegendModal('Stan Libuda', 'Rechtsaußen / Dribbelkünstler', 'Eines der größten Genies der deutschen Fußballgeschichte. Unnachahmlich in den Dribblings, Publikumsliebling und Weltmeister von 1974.')">
+                        <span>Stan Libuda</span> <span style="color:var(--s04-gold);">➔</span>
+                    </div>
+                    <div class="legend-item-link" onclick="openLegendModal('Rolf Rüssmann', 'Libero & Abwehrchef', 'Eine der prägenden Figuren der 1970er Jahre, stand für kompromisslose Klasse und Torgefahr aus der Defensive.')">
+                        <span>Rolf Rüssmann</span> <span style="color:var(--s04-gold);">➔</span>
+                    </div>
+                    <div class="legend-item-link" onclick="openLegendModal('Klaus Fichtel („Tschapperl“)', 'Rekord-Bundesligaspieler (477 Spiele für S04)', 'Die absolute Abwehr-Institution. Bis heute der älteste Spieler, der jemals in der Bundesliga auf dem Platz stand.')">
+                        <span>Klaus Fichtel</span> <span style="color:var(--s04-gold);">➔</span>
+                    </div>
+                    <div class="legend-item-link" onclick="openLegendModal('Herbert Lütkebohmert', 'Mittelfeldmotor & Pokalsieger 1972', 'Unermüdlicher Kämpfer im Mittelfeld und eine der prägenden Säulen der goldenen 1970er Jahre auf Schalke.')">
+                        <span>Herbert Lütkebohmert</span> <span style="color:var(--s04-gold);">➔</span>
+                    </div>
+                    <div class="legend-item-link" onclick="openLegendModal('Erwin & Helmut Kremers', 'Die legendären Zwillinge (70er Jahre)', 'Die ersten eineiigen Zwillinge in der Bundesliga. Erwin (Angriff) und Helmut (Abwehr) wirbelten die Liga durcheinander und holten 1972 den DFB-Pokal sowie die Vizemeisterschaft nach Schalke.')">
+                        <span>Die Kremers-Zwillinge</span> <span style="color:var(--s04-gold);">➔</span>
+                    </div>
+                    <div class="legend-item-link" onclick="openLegendModal('Rudi Assauer', 'Manager-Titan (1981–1986 & 1994–2004)', 'Der Architekt des modernen Schalke. Holte die Eurofighter, gewann den DFB-Pokal, baute die VELTINS-Arena und prägte den Verein wie kein Zweiter.')">
+                        <span>Rudi Assauer</span> <span style="color:var(--s04-gold);">➔</span>
+                    </div>
+                    <div class="legend-item-link" onclick="openLegendModal('Charly Neumann', 'Betreuer-Legende & Herz des Vereins', 'Zunächst Jugendleiter, dann drei Jahrzehnte Mannschaftsbetreuer. Ein leidenschaftliches Original und Fürsorger für Fans und Spieler. Sein unsterbliches Motto: „In schlechten Zeiten müsst ihr Schalker sein. In guten gibt es genug davon.“')">
+                        <span>Charly Neumann</span> <span style="color:var(--s04-gold);">➔</span>
+                    </div>
+                    <div class="legend-item-link" onclick="openLegendModal('Klaus Fischer', 'Stürmer / Fallrückzieher-König', 'Erzielte 182 Bundesliga-Tore für S04. Weltberühmt für seine perfekten und schier unmöglichen Fallrückzieher-Tore.')">
+                        <span>Klaus Fischer</span> <span style="color:var(--s04-gold);">➔</span>
+                    </div>
+                    <div class="legend-item-link" onclick="openLegendModal('Huub Stevens', 'Jahrhunderttrainer', 'Führte die Knappen mit eiserner Disziplin zum UEFA-Pokal-Triumph 1997. Sein berühmtes Motto: „Die Null muss stehen!“')">
+                        <span>Huub Stevens</span> <span style="color:var(--s04-gold);">➔</span>
+                    </div>
+                    <div class="legend-item-link" onclick="openLegendModal('Mike Büskens („Buyo“)', 'Eurofighter, Pokalsieger & Trainer', 'Mike Büskens ist ein königsblaues Synonym für harte Arbeit, für „Maloche“, wie die Menschen im Ruhrpott zu sagen pflegen. Er wird mit den Knappen zweimal Deutscher Pokalsieger und ist eine der tragenden Säulen beim UEFA-Cup-Sieg 1997. Später Nachwuchscoach und Teil des Trainerteams der Profis.')">
+                        <span>Mike Büskens („Buyo“)</span> <span style="color:var(--s04-gold);">➔</span>
+                    </div>
+                    <div class="legend-item-link" onclick="openLegendModal('Olaf Thon', 'Mittelfeld-Regisseur & Weltmeister', 'Das Schalker Jahrhunderttalent, das schon als Teenager die Bayern schwindelig spielte und 1990 mit Deutschland Weltmeister wurde.')">
+                        <span>Olaf Thon</span> <span style="color:var(--s04-gold);">➔</span>
+                    </div>
+                    <div class="legend-item-link" onclick="openLegendModal('Ebbe Sand', 'Dänischer Stürmer & Publikumsliebling', 'Garant für Tore und Emotionen in der Arena. Torschützenkönig der Bundesliga 2001 und unvergesslicher Knappe.')">
+                        <span>Ebbe Sand</span> <span style="color:var(--s04-gold);">➔</span>
+                    </div>
+                    <div class="legend-item-link" onclick="openLegendModal('Eurofighter (Wilmots & Büskens)', 'Helden von Mailand 1997', 'Kämpften sich unvergesslich in die Herzen aller Schalker und holten den UEFA-Cup sensationell ins Ruhrgebiet.')">
+                        <span>Eurofighter (Wilmots / Büskens)</span> <span style="color:var(--s04-gold);">➔</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kachel 6: Schalke-Historie & Fan-Ecke -->
+        <div class="dash-card">
+            <div class="dash-header">
+                <span>📜 Schalke-Historie</span>
+                <button class="action-link" onclick="nextHistoryFact()">Nächster Fakt</button>
+            </div>
+            <div class="dash-content" id="historyFactText" style="font-size: 0.82rem; font-weight: normal; font-style: italic; line-height: 1.3; margin-bottom: 8px;">
+                FC Schalke 04 wurde am 4. Mai 1904 gegründet.
+            </div>
+            <div class="fan-links">
+                <a href="https://schalke04.de" target="_blank" class="fan-btn">🌐 S04.de</a>
+                <a href="https://shop.schalke04.de" target="_blank" class="fan-btn">🛍️ Shop</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- SPIELTAGS-TABELLE -->
+    <div class="section-box">
+        <div class="section-header" id="matchdayTableHeader">Spieltag 4</div>
+        <div class="matchday-controls">
+            <button class="matchday-btn" onclick="changeMatchday(-1)">◀ Vorheriger</button>
+            <strong id="matchdayDisplay" style="color: var(--s04-bright-blue); font-size: 1.1rem;">Spieltag 4</strong>
+            <button class="matchday-btn" onclick="changeMatchday(1)">Nächster ▶</button>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 130px; color: #ffffff;">Termin</th>
+                        <th style="text-align: right;">Heimmannschaft</th>
+                        <th style="text-align: center; width: 130px;">Ergebnis</th>
+                        <th>Gastmannschaft</th>
+                    </tr>
+                </thead>
+                <tbody id="matchdayTableBody">
+                    <tr><td colspan="4" class="loading-text">Lade Spielplan...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TORSCHÜTZEN -->
+    <div class="section-box">
+        <div class="section-header" id="matchdayScorersHeader">⚽ Schalke-Torschützen — Spieltag 4</div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 120px;">Minute / Stand</th>
+                        <th>Spieler</th>
+                        <th style="text-align: right;">Begegnung</th>
+                    </tr>
+                </thead>
+                <tbody id="matchdayScorersBody">
+                    <tr><td colspan="3" class="loading-text">Ermittle Schalke-Torschützen...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- GESAMT-TABELLE -->
+    <div class="section-box">
+        <div class="section-header">1. Bundesliga Tabelle (Live)</div>
+        <div class="table-legend">
+            <div class="legend-item"><div class="legend-box" style="background: #2ea043;"></div> Champions League</div>
+            <div class="legend-item"><div class="legend-box" style="background: var(--s04-bright-blue);"></div> Europa League</div>
+            <div class="legend-item"><div class="legend-box" style="background: #bb8009;"></div> Conference League Q.</div>
+            <div class="legend-item"><div class="legend-box" style="background: var(--s04-gold);"></div> Relegation</div>
+            <div class="legend-item"><div class="legend-box" style="background: #da3633;"></div> Abstieg</div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 35px;">Pl.</th>
+                        <th>Mannschaft</th>
+                        <th style="text-align: center;">Sp</th>
+                        <th style="text-align: center;">S</th>
+                        <th style="text-align: center;">U</th>
+                        <th style="text-align: center;">N</th>
+                        <th style="text-align: center;">Tore</th>
+                        <th style="text-align: center;">Diff</th>
+                        <th style="text-align: center;">Punkte</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr><td colspan="9" class="loading-text">Lade Tabelle...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const SUPABASE_URL = 'https://lhusylpjnujlqomougmg.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_yXEueWILvAq-Vm2VfTuYyg_BIQeE1KK';
+    
+    let supabaseClient = null;
+    try {
+        if (typeof supabase !== 'undefined') {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+    } catch (e) {
+        console.error("Supabase Init Fehler:", e);
+    }
+
+    let teamLogos = {};
+    let teamApiIcons = {};
+
+    // POPUP STEUERUNG
+    function openLegendModal(name, role, desc) {
+        document.getElementById('modalLegendName').textContent = name;
+        document.getElementById('modalLegendRole').textContent = role;
+        document.getElementById('modalLegendDesc').textContent = desc;
+        document.getElementById('legendModal').style.display = 'flex';
+    }
+    function closeLegendModal() {
+        document.getElementById('legendModal').style.display = 'none';
+    }
+
+    const historyFacts = [
+        "FC Schalke 04 wurde am 4. Mai 1904 als „Westfalia Schalke“ gegründet.",
+        "Mit über 180.000 Mitgliedern ist S04 einer der größten Sportvereine der Welt.",
+        "Die legendäre Glückauf-Kampfbahn war jahrzehntelang die Heimstätte der Knappen.",
+        "1997 gewannen die Eurofighter sensationell den UEFA-Pokal im San Siro in Mailand.",
+        "Der FC Schalke 04 wurde 7-mal Deutscher Meister und 5-mal DFB-Pokalsieger.",
+        "Die VELTINS-Arena verfügt über ein verschiebbares Dach und einen ausfahrbaren Rasen."
+    ];
+    let currentFactIndex = 0;
+    function nextHistoryFact() {
+        currentFactIndex = (currentFactIndex + 1) % historyFacts.length;
+        document.getElementById('historyFactText').textContent = historyFacts[currentFactIndex];
+    }
+
+    const slides = [
+        { url: "https://lhusylpjnujlqomougmg.supabase.co/storage/v1/object/public/vereinslogos/mannschaft.png", name: "Mannschaft" },
+        { url: "https://lhusylpjnujlqomougmg.supabase.co/storage/v1/object/public/vereinslogos/230929_veltins-arena.png", name: "Veltins-Arena" },
+        { url: "https://lhusylpjnujlqomougmg.supabase.co/storage/v1/object/public/vereinslogos/s04.png", name: "FC Schalke 04" },
+        { url: "https://lhusylpjnujlqomougmg.supabase.co/storage/v1/object/public/vereinslogos/s04_glueck_auf.png", name: "Glück Auf — Schalke" },
+        { url: "https://lhusylpjnujlqomougmg.supabase.co/storage/v1/object/public/vereinslogos/veltins_arena01.png", name: "Veltins-Arena (Innenraum)" }
+    ];
+    let currentSlideIndex = 0;
+    let slideInterval;
+
+    function showSlide(index) {
+        if (index >= slides.length) currentSlideIndex = 0;
+        else if (index < 0) currentSlideIndex = slides.length - 1;
+        else currentSlideIndex = index;
+        let imgElem = document.getElementById('slideImage');
+        let captionElem = document.getElementById('slideCaption');
+        if (!imgElem) return;
+        imgElem.style.opacity = 0;
+        setTimeout(() => {
+            imgElem.src = slides[currentSlideIndex].url;
+            captionElem.textContent = slides[currentSlideIndex].name;
+            imgElem.style.opacity = 1;
+        }, 200);
+    }
+    function nextSlide() { showSlide(currentSlideIndex + 1); resetTimer(); }
+    function prevSlide() { showSlide(currentSlideIndex - 1); resetTimer(); }
+    function resetTimer() {
+        clearInterval(slideInterval);
+        slideInterval = setInterval(() => { showSlide(currentSlideIndex + 1); }, 5000);
+    }
+
+    let currentMatchday = 4;
+    let maxMatchday = 34;
+    const leagueShortcut = 'bl1';
+    let seasonYear = '2026';
+    let nextMatchDateObj = null;
+
+    async function initApp() {
+        if (supabaseClient) {
+            try {
+                let { data } = await supabaseClient.from('bundesliga_vereins_logos').select('*');
+                if (data) {
+                    teamLogos = {};
+                    data.forEach(item => {
+                        if (item.team_name && item.logo_url) {
+                            teamLogos[item.team_name.trim().toLowerCase()] = item.logo_url;
+                        }
+                    });
+                }
+            } catch (e) {
+                console.log("Logos konnten nicht aus Cloud geladen werden", e);
+            }
+        }
+
+        await loadTable();
+        await loadMatchday(currentMatchday);
+
+        // Live-Aktualisierung im Hintergrund alle 60 Sekunden
+        setInterval(async () => {
+            try {
+                await loadTable();
+                await loadMatchday(currentMatchday);
+            } catch(err) {
+                console.error("Hintergrund-Aktualisierungsfehler:", err);
+            }
+        }, 60000);
+
+        setInterval(updateCountdown, 1000);
+    }
+
+    function getTeamHtml(teamName, teamIconUrl = '', alignRight = false) {
+        let key = teamName.trim().toLowerCase();
+        let logoUrl = teamLogos[key] || teamApiIcons[key] || teamIconUrl;
+        let logoHtml = logoUrl ? `<img src="${logoUrl}" alt="${teamName}" class="team-mini-logo">` : ``;
+
+        if (alignRight) {
+            return `<div class="team-cell-content" style="justify-content: flex-end;"><span>${teamName}</span>${logoHtml}</div>`;
+        } else {
+            return `<div class="team-cell-content">${logoHtml}<span>${teamName}</span></div>`;
+        }
+    }
+
+    async function loadTable() {
+        try {
+            let res = await fetch(`https://api.openligadb.de/getbltable/${leagueShortcut}/${seasonYear}`);
+            if (!res.ok) return;
+            let data = await res.json();
+            renderTable(data);
+        } catch (e) {
+            console.error("Fehler beim Laden der Tabelle:", e);
+        }
+    }
+
+    async function loadMatchday(matchday) {
+        currentMatchday = matchday;
+        document.getElementById('matchdayDisplay').textContent = `Spieltag ${currentMatchday}`;
+        document.getElementById('matchdayTableHeader').textContent = `Spieltag ${currentMatchday} — Spiele & Ergebnisse`;
+        document.getElementById('matchdayScorersHeader').textContent = `⚽ Schalke-Torschützen — Spieltag ${currentMatchday}`;
+        
+        try {
+            let res = await fetch(`https://api.openligadb.de/getmatchdata/${leagueShortcut}/${seasonYear}/${currentMatchday}`);
+            if (!res.ok) return;
+            let data = await res.json();
+            renderMatches(data);
+            renderSchalkeMatchdayScorers(data);
+            extractDashboardData(data);
+        } catch (e) {
+            console.error("Fehler beim Laden des Spieltags:", e);
+            document.getElementById('matchdayTableBody').innerHTML = `<tr><td colspan="4" class="loading-text">Fehler beim Laden der Spiele.</td></tr>`;
+        }
+    }
+
+    async function extractDashboardData(matchdayMatches) {
+        let schalkeMatch = null;
+        if (Array.isArray(matchdayMatches)) {
+            schalkeMatch = matchdayMatches.find(m => 
+                m.team1.teamName.toLowerCase().includes('schalke') || m.team2.teamName.toLowerCase().includes('schalke')
+            );
+        }
+
+        let nextText = document.getElementById('nextMatchText');
+        let countdownBadge = document.getElementById('countdownBadge');
+
+        if (schalkeMatch && !schalkeMatch.matchIsFinished) {
+            let hName = schalkeMatch.team1.teamName;
+            let aName = schalkeMatch.team2.teamName;
+            nextMatchDateObj = new Date(schalkeMatch.matchDateTime);
+            nextText.textContent = `${hName} vs ${aName}`;
+            updateCountdown();
+        } else {
+            nextText.textContent = `Spieltag ${currentMatchday} Partie`;
+            if (schalkeMatch) {
+                nextMatchDateObj = new Date(schalkeMatch.matchDateTime);
+                updateCountdown();
+            }
+        }
+
+        if (currentMatchday > 1) {
+            try {
+                let res = await fetch(`https://api.openligadb.de/getmatchdata/${leagueShortcut}/${seasonYear}/${currentMatchday - 1}`);
+                if (res.ok) {
+                    let prevMatches = await res.json();
+                    if (Array.isArray(prevMatches)) {
+                        let lastMatch = prevMatches.find(m => 
+                            m.team1.teamName.toLowerCase().includes('schalke') || m.team2.teamName.toLowerCase().includes('schalke')
+                        );
+                        if (lastMatch && lastMatch.matchIsFinished) {
+                            let hName = lastMatch.team1.teamName;
+                            let aName = lastMatch.team2.teamName;
+                            let resObj = lastMatch.matchResults.find(r => r.resultName === 'Endergebnis') || lastMatch.matchResults[lastMatch.matchResults.length - 1];
+                            let hG = resObj ? resObj.pointsTeam1 : 0;
+                            let aG = resObj ? resObj.pointsTeam2 : 0;
+                            document.getElementById('lastMatchText').textContent = `${hName} vs ${aName}`;
+                            document.getElementById('lastMatchScoreBadge').textContent = `${hG} : ${aG}`;
+                        }
+                    }
+                }
+            } catch(e) {}
+        }
+
+        loadFormAndStats();
+    }
+
+    async function loadFormAndStats() {
+        let formContainer = document.getElementById('formContainer');
+        let homeAwayText = document.getElementById('homeAwayStatsText');
+        
+        let results = [];
+        for (let d = 1; d < currentMatchday; d++) {
+            try {
+                let res = await fetch(`https://api.openligadb.de/getmatchdata/${leagueShortcut}/${seasonYear}/${d}`);
+                if (res.ok) {
+                    let matches = await res.json();
+                    let sMatch = matches.find(m => m.team1.teamName.toLowerCase().includes('schalke') || m.team2.teamName.toLowerCase().includes('schalke'));
+                    if (sMatch && sMatch.matchIsFinished) {
+                        results.push(sMatch);
+                    }
+                }
+            } catch(e) {}
+        }
+
+        if (results.length === 0) {
+            formContainer.innerHTML = `<span style="font-size:0.8rem; color:var(--text-muted);">Noch keine beendeten Spiele</span>`;
+            homeAwayText.innerHTML = `Heim: 0S - 0U - 0N (0 Pkt)<br>Auswärts: 0S - 0U - 0N (0 Pkt)`;
+            return;
+        }
+
+        let formHtml = `<div class="form-container">`;
+        results.slice(-5).forEach(m => {
+            let isHome = m.team1.teamName.toLowerCase().includes('schalke');
+            let res = m.matchResults.find(r => r.resultName === 'Endergebnis') || m.matchResults[m.matchResults.length - 1];
+            if (res) {
+                let sG = isHome ? res.pointsTeam1 : res.pointsTeam2;
+                let oG = isHome ? res.pointsTeam2 : res.pointsTeam1;
+                if (sG > oG) formHtml += `<div class="form-dot form-s">S</div>`;
+                else if (sG === oG) formHtml += `<div class="form-dot form-u">U</div>`;
+                else formHtml += `<div class="form-dot form-n">N</div>`;
+            }
+        });
+        formHtml += `</div>`;
+        formContainer.innerHTML = formHtml;
+
+        let hW=0, hD=0, hL=0, aW=0, aD=0, aL=0;
+        results.forEach(m => {
+            let isHome = m.team1.teamName.toLowerCase().includes('schalke');
+            let res = m.matchResults.find(r => r.resultName === 'Endergebnis') || m.matchResults[m.matchResults.length - 1];
+            if (res) {
+                let sG = isHome ? res.pointsTeam1 : res.pointsTeam2;
+                let oG = isHome ? res.pointsTeam2 : res.pointsTeam1;
+                if (isHome) {
+                    if (sG > oG) hW++; else if (sG === oG) hD++; else hL++;
+                } else {
+                    if (sG > oG) aW++; else if (sG === oG) aD++; else aL++;
+                }
+            }
+        });
+        homeAwayText.innerHTML = `
+            🏠 Heim: <strong>${hW}S - ${hD}U - ${hL}N</strong> (${hW*3+hD} Pkt)<br>
+            ✈️ Auswärts: <strong>${aW}S - ${aD}U - ${aL}N</strong> (${aW*3+aD} Pkt)
+        `;
+    }
+
+    function renderSchalkeMatchdayScorers(matches) {
+        let tbody = document.getElementById('matchdayScorersBody');
+        tbody.innerHTML = '';
+
+        let schalkeGoals = [];
+        if (Array.isArray(matches)) {
+            matches.forEach(match => {
+                let hTeam = match.team1.teamName;
+                let aTeam = match.team2.teamName;
+                
+                if (hTeam.toLowerCase().includes('schalke') || aTeam.toLowerCase().includes('schalke')) {
+                    if (Array.isArray(match.goals) && match.goals.length > 0) {
+                        match.goals.forEach(g => {
+                            let scoringTeam = g.teamId === match.team1.teamId ? hTeam : aTeam;
+                            if (scoringTeam.toLowerCase().includes('schalke')) {
+                                schalkeGoals.push({
+                                    minute: g.matchMinute || '?',
+                                    player: g.goalGetterName || 'Unbekannt',
+                                    score: `${g.scoreTeam1}:${g.scoreTeam2}`,
+                                    matchName: `${hTeam} vs ${aTeam}`
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        if (schalkeGoals.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" class="loading-text">An diesem Spieltag keine Schalke-Tore erfasst.</td></tr>`;
+            return;
+        }
+
+        schalkeGoals.forEach(item => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${item.minute}. Min</strong> <span style="color:var(--s04-gold); font-size:0.8rem;">(${item.score})</span></td>
+                <td style="font-weight: bold; color: #ffffff;">${item.player}</td>
+                <td style="text-align: right; color: var(--text-muted); font-size: 0.8rem;">${item.matchName}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function updateCountdown() {
+        if (!nextMatchDateObj) return;
+        let now = new Date();
+        let diff = nextMatchDateObj - now;
+
+        let badge = document.getElementById('countdownBadge');
+        if (diff <= 0) {
+            badge.textContent = "LIVE / Läuft";
+            return;
+        }
+
+        let days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        let hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        let minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        let seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        badge.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    function changeMatchday(dir) {
+        let newDay = currentMatchday + dir;
+        if (newDay >= 1 && newDay <= maxMatchday) {
+            loadMatchday(newDay);
+        }
+    }
+
+    function renderTable(data) {
+        let tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+
+        if (!Array.isArray(data) || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" class="loading-text">Keine Tabellendaten verfügbar.</td></tr>`;
+            return;
+        }
+
+        data.forEach((row, idx) => {
+            if (row.teamIconUrl) {
+                teamApiIcons[row.teamName.trim().toLowerCase()] = row.teamIconUrl;
+            }
+
+            let rank = idx + 1;
+            let isSchalke = row.teamName.toLowerCase().includes('schalke');
+            let tr = document.createElement('tr');
+
+            if (rank >= 1 && rank <= 4) tr.classList.add('cl-zone');
+            else if (rank === 5) tr.classList.add('el-zone');
+            else if (rank === 6) tr.classList.add('ecl-zone');
+            else if (rank === 16) tr.classList.add('relegation-zone');
+            else if (rank >= 17) tr.classList.add('relegation-direct-zone');
+
+            if (isSchalke) tr.classList.add('s04-team-row');
+
+            let teamCellHtml = getTeamHtml(row.teamName, row.teamIconUrl, false);
+
+            tr.innerHTML = `
+                <td><strong>${rank}.</strong></td>
+                <td>${teamCellHtml}</td>
+                <td style="text-align: center;">${row.matches}</td>
+                <td style="text-align: center;">${row.won}</td>
+                <td style="text-align: center;">${row.draw}</td>
+                <td style="text-align: center;">${row.lost}</td>
+                <td style="text-align: center;">${row.goals}:${row.opponentGoals}</td>
+                <td style="text-align: center;">${row.goalDiff > 0 ? '+' + row.goalDiff : row.goalDiff}</td>
+                <td style="text-align: center; font-weight: bold;">${row.points}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function renderMatches(data) {
+        let tbody = document.getElementById('matchdayTableBody');
+        tbody.innerHTML = '';
+
+        if (!Array.isArray(data) || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="loading-text">Keine Spiele für diesen Spieltag gefunden.</td></tr>`;
+            return;
+        }
+
+        data.forEach(match => {
+            let homeName = match.team1.teamName;
+            let awayName = match.team2.teamName;
+            let homeIcon = match.team1.teamIconUrl;
+            let awayIcon = match.team2.teamIconUrl;
+
+            if (homeName && homeIcon) teamApiIcons[homeName.trim().toLowerCase()] = homeIcon;
+            if (awayName && awayIcon) teamApiIcons[awayName.trim().toLowerCase()] = awayIcon;
+
+            let isS04 = homeName.toLowerCase().includes('schalke') || awayName.toLowerCase().includes('schalke');
+            let tr = document.createElement('tr');
+            if (isS04) tr.classList.add('s04-match-row');
+
+            let dateObj = new Date(match.matchDateTime);
+            let dateStr = dateObj.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+            let timeStr = dateObj.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+            let scoreDisplay = `<span style="color:var(--text-muted);">${dateStr} — ${timeStr} Uhr</span>`;
+            
+            if (match.matchIsFinished) {
+                let homeGoals = 0, awayGoals = 0;
+                if (match.matchResults && match.matchResults.length > 0) {
+                    let res = match.matchResults.find(r => r.resultName === 'Endergebnis') || match.matchResults[match.matchResults.length - 1];
+                    homeGoals = res.pointsTeam1;
+                    awayGoals = res.pointsTeam2;
+                }
+                scoreDisplay = `<strong>${homeGoals} : ${awayGoals}</strong> <span style="font-size:0.7rem; color:var(--text-muted);">(Endstand)</span>`;
+            } else if (match.goals && match.goals.length > 0) {
+                let lastGoal = match.goals[match.goals.length - 1];
+                scoreDisplay = `<span style="color:#3fb950; font-weight:bold;">LIVE ${lastGoal.scoreTeam1}:${lastGoal.scoreTeam2}</span>`;
+            }
+
+            let homeContent = getTeamHtml(homeName, homeIcon, true);
+            let awayContent = getTeamHtml(awayName, awayIcon, false);
+
+            if (homeName.toLowerCase().includes('schalke')) homeContent = `<span class="s04-highlight">${homeContent}</span>`;
+            if (awayName.toLowerCase().includes('schalke')) awayContent = `<span class="s04-highlight">${awayContent}</span>`;
+
+            tr.innerHTML = `
+                <td style="font-size: 0.8rem; color: #ffffff;">${dateStr} — ${timeStr}</td>
+                <td style="text-align: right;">${homeContent}</td>
+                <td style="text-align: center;">${scoreDisplay}</td>
+                <td>${awayContent}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    showSlide(0);
+    resetTimer();
+    initApp();
+</script>
+
+</body>
+</html>
