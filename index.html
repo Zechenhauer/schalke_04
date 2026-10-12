@@ -824,6 +824,7 @@
     let teamLogos = {};
     let teamApiIcons = {};
     let previousSchalkeScores = {};
+    let allOpenLigaMatches = {};
 
     function openLegendModal(name, role, desc) {
         document.getElementById('modalLegendName').textContent = name;
@@ -847,7 +848,7 @@
         return outputArray;
     }
 
-    // Push Benachrichtigungen aktivieren (identisch zur Bayern-App mit `./sw.js`)
+    // Push Benachrichtigungen aktivieren
     async function requestPushPermission() {
         if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
             alert("Push-Benachrichtigungen werden von diesem Browser leider nicht unterstützt.");
@@ -965,7 +966,7 @@
     const historyFacts = [
         "FC Schalke 04 wurde am 4. Mai 1904 als „Westfalia Schalke“ gegründet.",
         "Mit über 180.000 Mitgliedern ist S04 einer der größten Sportvereine der Welt.",
-        "Die legendäre Glückauf-Kampfbahn war jahrzehntelang die Heimstätte der Knappen.",
+        "Die legendäre Glückauf-Kampfbahn was jahrzehntelang die Heimstätte der Knappen.",
         "1997 gewannen die Eurofighter sensationell den UEFA-Pokal im San Siro in Mailand.",
         "Der FC Schalke 04 wurde 7-mal Deutscher Meister und 5-mal DFB-Pokalsieger.",
         "Die VELTINS-Arena verfügt über ein verschiebbares Dach und einen ausfahrbaren Rasen."
@@ -1030,41 +1031,68 @@
             }
         }
 
-        try {
-            let foundMatchday = null;
-            for (let d = 1; d <= 34; d++) {
-                let res = await fetch(`https://api.openligadb.de/getmatchdata/\${leagueShortcut}/${seasonYear}/${d}`);
-                if (res.ok) {
-                    let matches = await res.json();
-                    if (Array.isArray(matches) && matches.length > 0) {
-                        let hasUnfinished = matches.some(m => !m.matchIsFinished);
-                        if (hasUnfinished) {
-                            foundMatchday = d;
-                            break;
-                        }
-                    }
-                }
-            }
-            if (foundMatchday) {
-                currentMatchday = foundMatchday;
-            }
-        } catch (e) {
-            console.log("Konnte automatischen Live-Spieltag nicht ermitteln.", e);
-        }
-
         await loadTable();
-        await loadMatchday(currentMatchday);
+        await fetchAllOpenLigaMatches();
 
         setInterval(async () => {
             try {
                 await loadTable();
-                await loadMatchday(currentMatchday);
+                await fetchAllOpenLigaMatches();
             } catch(err) {
                 console.error("Hintergrund-Aktualisierungsfehler:", err);
             }
         }, 60000);
 
         setInterval(updateCountdown, 1000);
+    }
+
+    async function fetchAllOpenLigaMatches() {
+        try {
+            let res = await fetch(`https://api.openligadb.de/getmatchdata/${leagueShortcut}/${seasonYear}`);
+            if (!res.ok) return;
+            let data = await res.json();
+
+            allOpenLigaMatches = {};
+            let foundMatchday = null;
+
+            if (Array.isArray(data)) {
+                data.forEach(match => {
+                    let mDay = match.group && match.group.groupOrderID ? match.group.groupOrderID : 1;
+                    if (!allOpenLigaMatches[mDay]) allOpenLigaMatches[mDay] = [];
+                    allOpenLigaMatches[mDay].push(match);
+
+                    let hasUnfinished = !match.matchIsFinished;
+                    if (hasUnfinished && !foundMatchday) {
+                        foundMatchday = mDay;
+                    }
+                });
+            }
+
+            if (foundMatchday) {
+                currentMatchday = foundMatchday;
+            }
+
+            renderMatchday(currentMatchday);
+        } catch (e) {
+            console.error("Fehler beim Abrufen von OpenLigaDB:", e);
+            document.getElementById('matchdayTableBody').innerHTML = `<tr><td colspan="4" class="loading-text">Fehler beim Laden der Spiele.</td></tr>`;
+        }
+    }
+
+    function renderMatchday(matchday) {
+        currentMatchday = Math.max(1, Math.min(maxMatchday, matchday));
+        document.getElementById('matchdayDisplay').textContent = `Spieltag \${currentMatchday}`;
+        document.getElementById('matchdayTableHeader').textContent = `Spieltag \${currentMatchday} — Spiele & Ergebnisse`;
+        document.getElementById('matchdayScorersHeader').textContent = `⚽ Schalke-Torschützen — Spieltag \${currentMatchday}`;
+
+        let matches = allOpenLigaMatches[currentMatchday] || [];
+        renderMatches(matches);
+        renderSchalkeMatchdayScorers(matches);
+        extractDashboardData(matches);
+    }
+
+    function loadMatchday(matchday) {
+        renderMatchday(matchday);
     }
 
     function getTeamHtml(teamName, teamIconUrl = '', alignRight = false) {
@@ -1087,25 +1115,6 @@
             renderTable(data);
         } catch (e) {
             console.error("Fehler beim Laden der Tabelle:", e);
-        }
-    }
-
-    async function loadMatchday(matchday) {
-        currentMatchday = matchday;
-        document.getElementById('matchdayDisplay').textContent = `Spieltag ${currentMatchday}`;
-        document.getElementById('matchdayTableHeader').textContent = `Spieltag ${currentMatchday} — Spiele & Ergebnisse`;
-        document.getElementById('matchdayScorersHeader').textContent = `⚽ Schalke-Torschützen — Spieltag ${currentMatchday}`;
-        
-        try {
-            let res = await fetch(`https://api.openligadb.de/getmatchdata/${leagueShortcut}/${seasonYear}/${currentMatchday}`);
-            if (!res.ok) return;
-            let data = await res.json();
-            renderMatches(data);
-            renderSchalkeMatchdayScorers(data);
-            extractDashboardData(data);
-        } catch (e) {
-            console.error("Fehler beim Laden des Spieltags:", e);
-            document.getElementById('matchdayTableBody').innerHTML = `<tr><td colspan="4" class="loading-text">Fehler beim Laden der Spiele.</td></tr>`;
         }
     }
 
@@ -1135,26 +1144,19 @@
         }
 
         if (currentMatchday > 1) {
-            try {
-                let res = await fetch(`https://api.openligadb.de/getmatchdata/${leagueShortcut}/${seasonYear}/${currentMatchday - 1}`);
-                if (res.ok) {
-                    let prevMatches = await res.json();
-                    if (Array.isArray(prevMatches)) {
-                        let lastMatch = prevMatches.find(m => 
-                            m.team1.teamName.toLowerCase().includes('schalke') || m.team2.teamName.toLowerCase().includes('schalke')
-                        );
-                        if (lastMatch && lastMatch.matchIsFinished) {
-                            let hName = lastMatch.team1.teamName;
-                            let aName = lastMatch.team2.teamName;
-                            let resObj = lastMatch.matchResults.find(r => r.resultName === 'Endergebnis') || lastMatch.matchResults[lastMatch.matchResults.length - 1];
-                            let hG = resObj ? resObj.pointsTeam1 : 0;
-                            let aG = resObj ? resObj.pointsTeam2 : 0;
-                            document.getElementById('lastMatchText').textContent = `${hName} vs ${aName}`;
-                            document.getElementById('lastMatchScoreBadge').textContent = `${hG} : ${aG}`;
-                        }
-                    }
-                }
-            } catch(e) {}
+            let prevMatches = allOpenLigaMatches[currentMatchday - 1] || [];
+            let lastMatch = prevMatches.find(m => 
+                m.team1.teamName.toLowerCase().includes('schalke') || m.team2.teamName.toLowerCase().includes('schalke')
+            );
+            if (lastMatch && lastMatch.matchIsFinished) {
+                let hName = lastMatch.team1.teamName;
+                let aName = lastMatch.team2.teamName;
+                let resObj = lastMatch.matchResults.find(r => r.resultName === 'Endergebnis') || lastMatch.matchResults[lastMatch.matchResults.length - 1];
+                let hG = resObj ? resObj.pointsTeam1 : 0;
+                let aG = resObj ? resObj.pointsTeam2 : 0;
+                document.getElementById('lastMatchText').textContent = `${hName} vs ${aName}`;
+                document.getElementById('lastMatchScoreBadge').textContent = `${hG} : ${aG}`;
+            }
         }
 
         loadFormAndStats();
@@ -1166,16 +1168,11 @@
         
         let results = [];
         for (let d = 1; d < currentMatchday; d++) {
-            try {
-                let res = await fetch(`https://api.openligadb.de/getmatchdata/${leagueShortcut}/${seasonYear}/${d}`);
-                if (res.ok) {
-                    let matches = await res.json();
-                    let sMatch = matches.find(m => m.team1.teamName.toLowerCase().includes('schalke') || m.team2.teamName.toLowerCase().includes('schalke'));
-                    if (sMatch && sMatch.matchIsFinished) {
-                        results.push(sMatch);
-                    }
-                }
-            } catch(e) {}
+            let matches = allOpenLigaMatches[d] || [];
+            let sMatch = matches.find(m => m.team1.teamName.toLowerCase().includes('schalke') || m.team2.teamName.toLowerCase().includes('schalke'));
+            if (sMatch && sMatch.matchIsFinished) {
+                results.push(sMatch);
+            }
         }
 
         if (results.length === 0) {
@@ -1291,7 +1288,7 @@
     function changeMatchday(dir) {
         let newDay = currentMatchday + dir;
         if (newDay >= 1 && newDay <= maxMatchday) {
-            loadMatchday(newDay);
+            renderMatchday(newDay);
         }
     }
 
