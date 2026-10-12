@@ -847,7 +847,7 @@
         return outputArray;
     }
 
-    // HIER AUF DIE NEUE S04-TABELLE GEÄNDERT:
+    // Push Benachrichtigungen aktivieren und in push_subscriptions_s04 speichern
     async function requestPushPermission() {
         if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
             alert("Push-Benachrichtigungen werden von diesem Browser leider nicht unterstützt.");
@@ -874,7 +874,7 @@
             const p256dh = subscription.getKey('p256dh') ? btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('p256dh')))) : '';
             const auth = subscription.getKey('auth') ? btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('auth')))) : '';
 
-            // Geändert zu push_subscriptions_s04:
+            // Speichern in push_subscriptions_s04:
             const { error } = await supabaseClient.from('push_subscriptions_s04').upsert({
                 endpoint: subscription.endpoint,
                 p256dh: p256dh,
@@ -894,6 +894,7 @@
         }
     }
 
+    // Test-Push spezifisch für die S04-Tabelle via Edge Function
     async function sendTestPush() {
         try {
             const targetUrl = SUPABASE_URL + '/functions/v1/send-push';
@@ -902,6 +903,7 @@
                 mode: 'cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    table: 'push_subscriptions_s04',
                     title: "🔵 Schalke Test-Tor-Alarm!",
                     body: "Das Test-Tor für den FC Schalke 04 wurde erfolgreich ausgelöst!"
                 })
@@ -909,7 +911,7 @@
 
             const textResponse = await response.text();
             if (response.ok) {
-                alert("Test-Push erfolgreich ausgelöst! Gerät(e) sollten benachrichtigt werden.");
+                alert("Test-Push für Schalke 04 erfolgreich ausgelöst!");
             } else {
                 alert("Fehler von der Edge Function: " + textResponse);
             }
@@ -931,6 +933,7 @@
                 mode: 'cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    table: 'push_subscriptions_s04',
                     title: '🔵 TOR FÜR SCHALKE! (' + hScore + ':' + aScore + ')',
                     body: home + ' vs ' + away + ' — ' + detail
                 })
