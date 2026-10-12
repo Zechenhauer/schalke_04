@@ -823,7 +823,7 @@
 
     let teamLogos = {};
     let teamApiIcons = {};
-    let previousSchalkeScores = {}; // Speichert Schalke-Stände zur automatischen Toraerkennung
+    let previousSchalkeScores = {};
 
     function openLegendModal(name, role, desc) {
         document.getElementById('modalLegendName').textContent = name;
@@ -847,7 +847,7 @@
         return outputArray;
     }
 
-    // Push Benachrichtigungen aktivieren und mit VAPID Key in Supabase speichern
+    // Push Benachrichtigungen aktivieren und mit robustem Service Worker warten
     async function requestPushPermission() {
         if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
             alert("Push-Benachrichtigungen werden von diesem Browser leider nicht unterstützt.");
@@ -861,8 +861,12 @@
                 return;
             }
 
+            console.log("Registriere Service Worker...");
             const registration = await navigator.serviceWorker.register('./sw.js');
-            await registration.ready;
+            
+            // Warten bis der Service Worker aktiv und bereit ist
+            await navigator.serviceWorker.ready;
+            console.log("Service Worker ist bereit!");
 
             const publicVapidKey = 'BAsnfWgySLti5LzulXfN-xI-x7UDV32LO98YXgg1qdoRY1E1Tl05QPgCvOMgfwe80cSv_K7336-dhJTgBkHUI70';
             
@@ -917,7 +921,6 @@
         }
     }
 
-    // Automatischer Push bei Schalke-Tor
     async function triggerSchalkeGoalPush(home, away, hScore, aScore, scorerName = '') {
         try {
             let detail = scorerName ? `Tor durch \${scorerName}!` : "";
@@ -930,16 +933,14 @@
                     body: `\${home} vs ${away} —${detail}`
                 })
             });
-            console.log(`Schalke-Tor-Push ausgelöst für ${home} vs${away} (${hScore}:${aScore})`);
         } catch (e) {
             console.error("Fehler beim Schalke-Tor-Push:", e);
         }
     }
 
-    // Schalke-Tor manuell simulieren (Test-Button)
     async function simulateSchalkeGoal() {
         await triggerSchalkeGoalPush("FC Schalke 04", "Borussia Dortmund", 1, 0, "Klaus Fischer");
-        alert("Simuliertes Schalke-Tor gesendet! Die Push-Nachricht sollte gleich auf dem Handy erscheinen.");
+        alert("Simuliertes Schalke-Tor gesendet!");
     }
 
     function toggleAdminMode() {
@@ -1003,7 +1004,7 @@
         slideInterval = setInterval(() => { showSlide(currentSlideIndex + 1); }, 5000);
     }
 
-    let currentMatchday = 5; // Start-Fallback
+    let currentMatchday = 5;
     let maxMatchday = 34;
     const leagueShortcut = 'bl1';
     let seasonYear = '2026';
@@ -1045,7 +1046,7 @@
                 currentMatchday = foundMatchday;
             }
         } catch (e) {
-            console.log("Konnte automatischen Live-Spieltag nicht ermitteln, nutze Standard.", e);
+            console.log("Konnte automatischen Live-Spieltag nicht ermitteln.", e);
         }
 
         await loadTable();
