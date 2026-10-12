@@ -847,7 +847,7 @@
         return outputArray;
     }
 
-    // Push Benachrichtigungen aktivieren und mit robustem Service Worker warten
+    // Exakt identische Push-Logik wie in der funktionierenden Bayern-App:
     async function requestPushPermission() {
         if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
             alert("Push-Benachrichtigungen werden von diesem Browser leider nicht unterstützt.");
@@ -861,12 +861,8 @@
                 return;
             }
 
-            console.log("Registriere Service Worker...");
             const registration = await navigator.serviceWorker.register('./sw.js');
-            
-            // Warten bis der Service Worker aktiv und bereit ist
-            await navigator.serviceWorker.ready;
-            console.log("Service Worker ist bereit!");
+            await registration.ready;
 
             const publicVapidKey = 'BAsnfWgySLti5LzulXfN-xI-x7UDV32LO98YXgg1qdoRY1E1Tl05QPgCvOMgfwe80cSv_K7336-dhJTgBkHUI70';
             
@@ -903,7 +899,9 @@
             const response = await fetch(`\${SUPABASE_URL}/functions/v1/send-push`, {
                 method: 'POST',
                 mode: 'cors',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     title: "🔵 Schalke Test-Tor-Alarm!",
                     body: "Das Test-Tor für den FC Schalke 04 wurde erfolgreich ausgelöst!"
@@ -911,12 +909,15 @@
             });
 
             const textResponse = await response.text();
+            
             if (response.ok) {
                 alert("Test-Push erfolgreich ausgelöst! Gerät(e) sollten benachrichtigt werden.");
+                console.log("Antwort:", textResponse);
             } else {
                 alert("Fehler von der Edge Function: " + textResponse);
             }
         } catch (e) {
+            console.error("Netzwerkfehler:", e);
             alert("Netzwerkfehler: " + e.message);
         }
     }
@@ -1396,7 +1397,6 @@
                 }
             }
 
-            // --- AUTOMATISCHE TOR-ERKENNUNG FÜR SCHALKE ---
             if (isS04 && hasLiveOrFinishedResult) {
                 let matchId = 's04_' + match.matchID;
                 let prev = previousSchalkeScores[matchId];
