@@ -897,7 +897,8 @@
     // Test-Push an die Supabase Edge Function senden
     async function sendTestPush() {
         try {
-            const response = await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
+            const targetUrl = SUPABASE_URL + '/functions/v1/send-push';
+            const response = await fetch(targetUrl, {
                 method: 'POST',
                 mode: 'cors',
                 headers: { 'Content-Type': 'application/json' },
@@ -921,26 +922,26 @@
     // Automatischer Push bei Schalke-Tor INKL. Torschütze und Minute
     async function triggerSchalkeGoalPush(home, away, hScore, aScore, scorerName = '', minute = '') {
         try {
-            let detail = scorerName ? `Tor durch \${scorerName}` : "Tor!";
+            let detail = scorerName ? 'Tor durch ' + scorerName : "Tor!";
             if (minute) {
-                detail += ` (\${minute}. Min)`;
+                detail += ' (' + minute + '. Min)';
             }
 
-            await fetch(`\${SUPABASE_URL}/functions/v1/send-push`, {
+            const targetUrl = SUPABASE_URL + '/functions/v1/send-push';
+            await fetch(targetUrl, {
                 method: 'POST',
                 mode: 'cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    title: `🔵 TOR FÜR SCHALKE! (${hScore}:${aScore})`,
-                    body: `\${home} vs ${away} —${detail}`
+                    title: '🔵 TOR FÜR SCHALKE! (' + hScore + ':' + aScore + ')',
+                    body: home + ' vs ' + away + ' — ' + detail
                 })
             });
-            console.log(`Schalke-Tor-Push ausgelöst: \${detail}`);
+            console.log('Schalke-Tor-Push ausgelöst: ' + detail);
         } catch (e) {
             console.error("Fehler beim Schalke-Tor-Push:", e);
         }
     }
-
     // Schalke-Tor manuell simulieren (Test-Button mit Torschütze)
     async function simulateSchalkeGoal() {
         await triggerSchalkeGoalPush("FC Schalke 04", "Borussia Dortmund", 1, 0, "Klaus Fischer", "34");
