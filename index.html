@@ -897,7 +897,7 @@
     // Test-Push an die Supabase Edge Function senden
     async function sendTestPush() {
         try {
-            const response = await fetch(`\${SUPABASE_URL}/functions/v1/send-push`, {
+            const response = await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
                 method: 'POST',
                 mode: 'cors',
                 headers: { 'Content-Type': 'application/json' },
@@ -966,7 +966,7 @@
     const historyFacts = [
         "FC Schalke 04 wurde am 4. Mai 1904 als „Westfalia Schalke“ gegründet.",
         "Mit über 180.000 Mitgliedern ist S04 einer der größten Sportvereine der Welt.",
-        "Die legendäre Glückauf-Kampfbahn was jahrzehntelang die Heimstätte der Knappen.",
+        "Die legendäre Glückauf-Kampfbahn war jahrzehntelang die Heimstätte der Knappen.",
         "1997 gewannen die Eurofighter sensationell den UEFA-Pokal im San Siro in Mailand.",
         "Der FC Schalke 04 wurde 7-mal Deutscher Meister und 5-mal DFB-Pokalsieger.",
         "Die VELTINS-Arena verfügt über ein verschiebbares Dach und einen ausfahrbaren Rasen."
