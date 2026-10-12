@@ -847,7 +847,7 @@
         return outputArray;
     }
 
-    // Exakt identische Push-Logik wie in der funktionierenden Bayern-App:
+    // Push Benachrichtigungen aktivieren (identisch zur Bayern-App mit `./sw.js`)
     async function requestPushPermission() {
         if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
             alert("Push-Benachrichtigungen werden von diesem Browser leider nicht unterstützt.");
@@ -861,7 +861,7 @@
                 return;
             }
 
-            const registration = await navigator.serviceWorker.register('/schalke_04/sw.js');;
+            const registration = await navigator.serviceWorker.register('./sw.js');
             await registration.ready;
 
             const publicVapidKey = 'BAsnfWgySLti5LzulXfN-xI-x7UDV32LO98YXgg1qdoRY1E1Tl05QPgCvOMgfwe80cSv_K7336-dhJTgBkHUI70';
@@ -899,9 +899,7 @@
             const response = await fetch(`\${SUPABASE_URL}/functions/v1/send-push`, {
                 method: 'POST',
                 mode: 'cors',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     title: "🔵 Schalke Test-Tor-Alarm!",
                     body: "Das Test-Tor für den FC Schalke 04 wurde erfolgreich ausgelöst!"
@@ -909,22 +907,24 @@
             });
 
             const textResponse = await response.text();
-            
             if (response.ok) {
                 alert("Test-Push erfolgreich ausgelöst! Gerät(e) sollten benachrichtigt werden.");
-                console.log("Antwort:", textResponse);
             } else {
                 alert("Fehler von der Edge Function: " + textResponse);
             }
         } catch (e) {
-            console.error("Netzwerkfehler:", e);
             alert("Netzwerkfehler: " + e.message);
         }
     }
 
-    async function triggerSchalkeGoalPush(home, away, hScore, aScore, scorerName = '') {
+    // Automatischer Push bei Schalke-Tor INKL. Torschütze und Minute
+    async function triggerSchalkeGoalPush(home, away, hScore, aScore, scorerName = '', minute = '') {
         try {
-            let detail = scorerName ? `Tor durch \${scorerName}!` : "";
+            let detail = scorerName ? `Tor durch \${scorerName}` : "Tor!";
+            if (minute) {
+                detail += ` (\${minute}. Min)`;
+            }
+
             await fetch(`\${SUPABASE_URL}/functions/v1/send-push`, {
                 method: 'POST',
                 mode: 'cors',
@@ -934,14 +934,16 @@
                     body: `\${home} vs ${away} —${detail}`
                 })
             });
+            console.log(`Schalke-Tor-Push ausgelöst: \${detail}`);
         } catch (e) {
             console.error("Fehler beim Schalke-Tor-Push:", e);
         }
     }
 
+    // Schalke-Tor manuell simulieren (Test-Button mit Torschütze)
     async function simulateSchalkeGoal() {
-        await triggerSchalkeGoalPush("FC Schalke 04", "Borussia Dortmund", 1, 0, "Klaus Fischer");
-        alert("Simuliertes Schalke-Tor gesendet!");
+        await triggerSchalkeGoalPush("FC Schalke 04", "Borussia Dortmund", 1, 0, "Klaus Fischer", "34");
+        alert("Simuliertes Schalke-Tor mit Torschütze gesendet!");
     }
 
     function toggleAdminMode() {
@@ -1367,12 +1369,10 @@
             let scoreDisplay = `<span style="color:var(--text-muted);">${dateStr} — ${timeStr} Uhr</span>`;
             
             let apiScorers = [];
-            let lastScorerName = '';
             if (match.goals && Array.isArray(match.goals)) {
                 match.goals.forEach(goal => {
                     let name = goal.goalGetterName;
                     if (name) {
-                        lastScorerName = name;
                         let min = (goal.matchMinute !== null && goal.matchMinute !== undefined) ? goal.matchMinute + "'" : "";
                         let hPts = (goal.scoreTeam1 !== null && goal.scoreTeam1 !== undefined) ? goal.scoreTeam1 : goal.scoreGoal1;
                         let aPts = (goal.scoreTeam2 !== null && goal.scoreTeam2 !== undefined) ? goal.scoreTeam2 : goal.scoreGoal2;
@@ -1397,6 +1397,7 @@
                 }
             }
 
+            // --- AUTOMATISCHE TOR-ERKENNUNG FÜR SCHALKE MIT TORSCHÜTZE & MINUTE ---
             if (isS04 && hasLiveOrFinishedResult) {
                 let matchId = 's04_' + match.matchID;
                 let prev = previousSchalkeScores[matchId];
@@ -1405,7 +1406,11 @@
                 if (prev !== undefined) {
                     let schalkePrevGoals = homeName.toLowerCase().includes('schalke') ? prev.home : prev.away;
                     if (schalkeCurrentGoals > schalkePrevGoals) {
-                        triggerSchalkeGoalPush(homeName, awayName, homeGoals, awayGoals, lastScorerName);
+                        let lastGoalObj = (match.goals && match.goals.length > 0) ? match.goals[match.goals.length - 1] : null;
+                        let scorer = lastGoalObj ? lastGoalObj.goalGetterName : '';
+                        let min = lastGoalObj ? lastGoalObj.matchMinute : '';
+
+                        triggerSchalkeGoalPush(homeName, awayName, homeGoals, awayGoals, scorer, min);
                     }
                 }
                 previousSchalkeScores[matchId] = { home: homeGoals, away: awayGoals };
