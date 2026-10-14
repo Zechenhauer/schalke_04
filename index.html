@@ -847,7 +847,6 @@
         return outputArray;
     }
 
-    // Push Benachrichtigungen aktivieren und in push_subscriptions_s04 speichern
     async function requestPushPermission() {
         if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
             alert("Push-Benachrichtigungen werden von diesem Browser leider nicht unterstützt.");
@@ -874,7 +873,6 @@
             const p256dh = subscription.getKey('p256dh') ? btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('p256dh')))) : '';
             const auth = subscription.getKey('auth') ? btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('auth')))) : '';
 
-            // Speichern in push_subscriptions_s04:
             const { error } = await supabaseClient.from('push_subscriptions_s04').upsert({
                 endpoint: subscription.endpoint,
                 p256dh: p256dh,
@@ -894,7 +892,6 @@
         }
     }
 
-    // Test-Push spezifisch für die S04-Tabelle via Edge Function
     async function sendTestPush() {
         try {
             const targetUrl = SUPABASE_URL + '/functions/v1/send-push';
@@ -938,7 +935,6 @@
                     body: home + ' vs ' + away + ' — ' + detail
                 })
             });
-            console.log('Schalke-Tor-Push ausgelöst: ' + detail);
         } catch (e) {
             console.error("Fehler beim Schalke-Tor-Push:", e);
         }
@@ -1431,9 +1427,9 @@
 
             tr.innerHTML = `
                 <td style="font-size: 0.8rem; color: #ffffff; vertical-align: top;">${dateStr} — ${timeStr}</td>
-                <td style="text-align: right; vertical-align: top;">Heim: ${homeContent}</td>
+                <td style="text-align: right; vertical-align: top;">${homeContent}</td>
                 <td style="text-align: center; vertical-align: top;">${scoreDisplay}</td>
-                <td style="vertical-align: top;">Gast: ${awayContent}</td>
+                <td style="vertical-align: top;">${awayContent}</td>
             `;
             tbody.appendChild(tr);
         });
