@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔵 FC Schalke 04</title>
+    <title>FC Schalke 04 — 1. Bundesliga</title>
+    
+    <!-- Perfektes Inline-SVG Icon für den Homescreen -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2222%22 fill=%22%23004d9d%22/><text x=%2250%22 y=%2270%22 font-size=%2260%22 text-anchor=%22middle%22>⚽</text></svg>">
+    <link rel="apple-touch-icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2222%22 fill=%22%23004d9d%22/><text x=%2250%22 y=%2270%22 font-size=%2260%22 text-anchor=%22middle%22>⚽</text></svg>">
+
     <!-- Supabase Client Bibliothek laden -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -15,12 +19,12 @@
             --text-muted: #8b949e;
             --border-color: #1e3a6e;
             --s04-blue: #004d9d;
+            --s04-hover: #003366;
             --s04-dark: #002b5c;
+            --accent-green: rgba(46, 160, 67, 0.25);
+            --accent-yellow: rgba(227, 179, 64, 0.22);
             --s04-gold: #ffcc00;
             --s04-bright-blue: #3385ff;
-            --win-color: #2ea043;
-            --draw-color: #bb8009;
-            --loss-color: #da3633;
         }
 
         * { box-sizing: border-box; }
@@ -36,7 +40,7 @@
 
         .container {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1000px;
             background: var(--card-bg);
             border: 1px solid rgba(0, 77, 157, 0.4);
             border-radius: 12px;
@@ -44,7 +48,7 @@
             box-shadow: 0 4px 20px rgba(0, 77, 157, 0.2);
         }
 
-        /* SLIDESHOW */
+        /* GEMEINSAME SLIDESHOW KACHEL */
         .banner-wrapper {
             width: 100%;
             display: flex;
@@ -63,7 +67,7 @@
             position: relative;
             width: 100%;
             height: 380px;
-            background-color: #050b14;
+            background-color: #000000;
             overflow: hidden;
             border-radius: 6px;
             display: flex;
@@ -107,7 +111,6 @@
         .slide-prev { left: 10px; }
         .slide-next { right: 10px; }
 
-        /* TITLE ROW MIT LOGOS */
         .title-row {
             display: flex;
             align-items: center;
@@ -136,7 +139,9 @@
             font-size: 1.6rem;
             font-weight: 800;
         }
-        h2 span { color: var(--s04-bright-blue); }
+        h2 span {
+            color: var(--s04-bright-blue);
+        }
 
         .subtitle {
             text-align: center;
@@ -155,200 +160,42 @@
             justify-content: center;
             gap: 15px;
             flex-wrap: wrap;
-        }
-
-        /* DASHBOARD GRID */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .dash-card {
-            background: #070d1a;
-            border: 1px solid var(--s04-blue);
-            border-radius: 10px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            min-height: 140px;
-            box-shadow: 0 2px 10px rgba(0, 77, 157, 0.15);
-        }
-
-        .dash-header {
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            font-size: 0.75rem;
-            color: var(--s04-bright-blue);
-            text-transform: uppercase;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
         }
 
-        .dash-content {
-            font-size: 0.95rem;
-            font-weight: bold;
-            color: #ffffff;
-        }
-
-        .dash-badge {
-            background: rgba(0, 77, 157, 0.3);
-            border: 1px solid var(--s04-blue);
-            color: var(--s04-gold);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-        }
-
-        /* POPUP MODAL FÜR LEGENDEN */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(5, 11, 20, 0.85);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(4px);
-        }
-        .modal-box {
-            background: var(--card-bg);
-            border: 2px solid var(--s04-blue);
-            border-radius: 12px;
-            padding: 25px;
-            width: 90%;
-            max-width: 450px;
-            box-shadow: 0 10px 30px rgba(0, 77, 157, 0.4);
-            position: relative;
-            text-align: center;
-        }
-        .modal-title {
-            color: var(--s04-gold);
-            font-size: 1.3rem;
-            font-weight: 800;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-        }
-        .modal-subtitle {
-            color: var(--s04-bright-blue);
-            font-size: 0.85rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        .modal-text {
-            color: var(--text-color);
-            font-size: 0.95rem;
-            line-height: 1.5;
-            margin-bottom: 20px;
-        }
-        .modal-close-btn {
-            background: var(--s04-blue);
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .modal-close-btn:hover { background: var(--s04-bright-blue); }
-
-        /* LEGENDEN LISTE STYLING */
-        .legends-list {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            max-height: 110px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-        .legends-list::-webkit-scrollbar { width: 5px; }
-        .legends-list::-webkit-scrollbar-thumb { background: var(--s04-blue); border-radius: 3px; }
-
-        .legend-item-link {
-            background: rgba(0, 77, 157, 0.2);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 4px 8px;
+        .supabase-badge {
+            color: #3fb950;
+            background: rgba(46, 160, 67, 0.15);
+            padding: 2px 6px;
             border-radius: 4px;
-            text-decoration: none;
-            font-size: 0.8rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background 0.2s, border-color 0.2s;
-            cursor: pointer;
-        }
-        .legend-item-link:hover {
-            background: var(--s04-blue);
-            border-color: var(--s04-bright-blue);
-            color: #ffffff;
+            border: 1px solid rgba(46, 160, 67, 0.3);
+            font-weight: 600;
         }
 
-        /* FORM-DOTS */
-        .form-container {
-            display: flex;
-            gap: 6px;
-            align-items: center;
+        @keyframes pulse-blue {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
         }
-        .form-dot {
-            width: 26px;
-            height: 26px;
+        .live-badge {
+            display: none;
+            color: #3385ff;
+            background: rgba(51, 133, 255, 0.15);
+            padding: 3px 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(51, 133, 255, 0.4);
+            font-weight: bold;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #3385ff;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: bold;
-            color: #ffffff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            animation: pulse-blue 1.2s infinite;
         }
-        .form-s { background-color: var(--win-color); }
-        .form-u { background-color: var(--draw-color); }
-        .form-n { background-color: var(--loss-color); }
-
-        /* FAN-ECKE QUICK LINKS */
-        .fan-links {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 5px;
-        }
-        .fan-btn {
-            background: var(--s04-dark);
-            border: 1px solid var(--s04-blue);
-            color: #ffffff;
-            padding: 6px 12px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 0.8rem;
-            font-weight: bold;
-            transition: background 0.2s, border-color 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .fan-btn:hover { background: var(--s04-blue); border-color: var(--s04-bright-blue); }
-
-        .action-link {
-            background: none;
-            border: none;
-            color: var(--s04-bright-blue);
-            cursor: pointer;
-            font-size: 0.75rem;
-            font-weight: bold;
-            padding: 0;
-            text-transform: uppercase;
-            transition: color 0.2s;
-        }
-        .action-link:hover { color: var(--s04-gold); text-decoration: underline; }
 
         .section-box {
             background: #070d1a;
@@ -398,28 +245,73 @@
         }
         .header-action-btn:hover { background: rgba(0, 0, 0, 0.4); }
 
-        .table-legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
+        .btn-modal-open {
+            background: var(--s04-gold);
+            color: #070d1a;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
             font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-            padding: 8px 10px;
-            background: #050b14;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background 0.2s;
         }
-        .legend-item {
+        .btn-modal-open:hover { background: #ffdb4d; }
+
+        /* MODAL / POPUP STILE */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 15px;
+        }
+        .modal-card {
+            background: var(--card-bg);
+            border: 1px solid var(--s04-blue);
+            border-radius: 12px;
+            padding: 20px;
+            width: 100%;
+            max-width: 550px;
+            max-height: 85vh;
             display: flex;
-            align-items: center;
-            gap: 5px;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .legend-box {
-            width: 12px;
-            height: 12px;
-            border-radius: 3px;
+        .modal-body {
+            overflow-y: auto;
+            max-height: 70vh;
+            flex: 1;
+        }
+
+        .bayern-badge-win {
+            background: rgba(46, 160, 67, 0.25);
+            color: #3fb950;
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(46, 160, 67, 0.4);
+            font-weight: bold;
+        }
+        .bayern-badge-draw {
+            background: rgba(227, 179, 64, 0.25);
+            color: #e3b341;
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(227, 179, 64, 0.4);
+            font-weight: bold;
+        }
+        .bayern-badge-loss {
+            background: rgba(248, 81, 73, 0.25);
+            color: #f85149;
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(248, 81, 73, 0.4);
+            font-weight: bold;
         }
 
         .matchday-controls {
@@ -442,14 +334,17 @@
         }
         .matchday-btn:hover { background: var(--s04-dark); border-color: var(--s04-blue); }
 
-        .s04-highlight { color: var(--s04-bright-blue) !important; font-weight: bold; }
+        .bayern-highlight { 
+            color: var(--s04-bright-blue) !important; 
+            font-weight: bold; 
+        }
 
-        tr.s04-match-row {
+        tr.bayern-match-row {
             background: rgba(0, 77, 157, 0.15);
             border-left: 3px solid var(--s04-blue);
             border-right: 3px solid var(--s04-blue);
         }
-        tr.s04-match-row td {
+        tr.bayern-match-row td {
             border-top: 1px solid rgba(0, 77, 157, 0.3);
             border-bottom: 1px solid rgba(0, 77, 157, 0.3);
         }
@@ -475,45 +370,148 @@
         }
         td {
             padding: 10px 8px;
-            border-bottom: 1px solid var(--border-color);
-            white-space: nowrap;
-            vertical-align: middle;
+            vertical-align: top;
         }
         tr:hover { background-color: rgba(0, 77, 157, 0.05); }
 
-        tr.cl-zone td { background: rgba(35, 134, 54, 0.18); border-left: 3px solid #2ea043; }
-        tr.el-zone td { background: rgba(51, 133, 255, 0.18); border-left: 3px solid var(--s04-bright-blue); }
-        tr.ecl-zone td { background: rgba(158, 106, 3, 0.18); border-left: 3px solid #bb8009; }
-        tr.relegation-zone td { background: rgba(227, 179, 0, 0.2); border-left: 3px solid var(--s04-gold); }
-        tr.relegation-direct-zone td { background: rgba(180, 40, 40, 0.3); border-left: 3px solid #da3633; }
-
-        tr.s04-team-row td {
+        tr.rank-first td {
+            background: var(--accent-green);
+            color: #3fb950;
+            font-weight: bold;
+        }
+        tr.rank-last td {
+            background: var(--accent-yellow);
+            color: #e3b341;
+        }
+        tr.bayern-team-row td {
             font-weight: bold;
             color: var(--s04-bright-blue);
-            background: rgba(0, 77, 157, 0.25) !important;
+            background: rgba(0, 77, 157, 0.25);
             border-top: 1px solid rgba(0, 77, 157, 0.5);
             border-bottom: 1px solid rgba(0, 77, 157, 0.5);
         }
 
-        .team-cell-content {
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+        }
+        .stat-card {
+            background: #050b14;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--s04-bright-blue);
+            margin-top: 4px;
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* 6ER GRID KACHELN STILE */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .dash-card {
+            background: #070d1a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .dash-card-title {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: var(--s04-bright-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dash-card-content {
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+        .dash-btn-link {
+            background: var(--s04-blue);
+            color: #ffffff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.2s;
+        }
+        .dash-btn-link:hover { background: var(--s04-bright-blue); }
+
+        .legends-scroll-box {
+            max-height: 140px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-right: 4px;
+        }
+        /* Dezente Scrollbar für die Legenden-Liste */
+        .legends-scroll-box::-webkit-scrollbar {
+            width: 6px;
+        }
+        .legends-scroll-box::-webkit-scrollbar-track {
+            background: #070d1a;
+            border-radius: 3px;
+        }
+        .legends-scroll-box::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+        .legends-scroll-box::-webkit-scrollbar-thumb:hover {
+            background: var(--s04-blue);
+        }
+
+        .legend-row {
+            background: #112240;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .legend-row:hover {
+            background: var(--s04-hover);
+        }
+
+        .team-cell {
             display: flex;
             align-items: center;
             gap: 8px;
         }
+        .team-cell.right { justify-content: flex-end; }
         .team-mini-logo {
             width: 22px;
             height: 22px;
             object-fit: contain;
             flex-shrink: 0;
         }
-        .loading-text {
-            text-align: center;
-            color: var(--text-muted);
-            padding: 20px;
-            font-style: italic;
-        }
 
-        /* ADMIN BEREICH */
         .admin-toggle-wrapper {
             text-align: right;
             margin-top: 15px;
@@ -541,7 +539,6 @@
             margin-top: 15px;
             display: none;
         }
-
         .btn {
             background: var(--s04-blue);
             color: #ffffff;
@@ -553,157 +550,101 @@
             text-transform: uppercase;
             font-size: 0.85rem;
             width: 100%;
-            margin-top: 10px;
             transition: background 0.2s;
         }
         .btn:hover { background: var(--s04-bright-blue); }
+        
+        .btn-danger {
+            background: transparent;
+            border: none;
+            color: #f85149;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- POPUP MODAL FÜR LEGENDEN -->
-    <div class="modal-overlay" id="legendModal" onclick="closeLegendModal(event)">
-        <div class="modal-box" onclick="event.stopPropagation()">
-            <div class="modal-title" id="modalLegendName">Legenden-Name</div>
-            <div class="modal-subtitle" id="modalLegendRole">Position / Ära</div>
-            <div class="modal-text" id="modalLegendDesc">Beschreibung und historische Daten der Legende.</div>
-            <button class="modal-close-btn" onclick="closeLegendModal()">Schließen</button>
-        </div>
-    </div>
-
-    <!-- SLIDESHOW -->
+    <!-- SLIDESHOW OBEN -->
     <div class="banner-wrapper">
         <div class="slideshow-container">
             <button class="slide-btn slide-prev" onclick="prevSlide()">❮</button>
-            <img id="slideImage" src="" alt="Schalke Diashow" class="slide-img">
+            <img id="slideImage" src="" alt="Mannschaftsfoto / Kader" class="slide-img">
             <button class="slide-btn slide-next" onclick="nextSlide()">❯</button>
         </div>
-        <div class="slide-caption" id="slideCaption">Mannschaft</div>
+        <div class="slide-caption" id="slideCaption">Mannschaftsfoto</div>
     </div>
 
-    <!-- SCHALKE LOGO & TITEL DIREKT UNTER DEM BANNER -->
-    <div class="title-row" style="margin-top: 15px; margin-bottom: 15px;">
+    <div class="title-row">
         <img src="https://upload.wikimedia.org/wikipedia/commons/6/6d/FC_Schalke_04_Logo.svg" alt="S04 Logo" class="header-logo">
         <h2>FC Schalke <span>04</span></h2>
         <img src="https://upload.wikimedia.org/wikipedia/commons/6/6d/FC_Schalke_04_Logo.svg" alt="S04 Logo" class="header-logo">
     </div>
-    <div class="subtitle">1. Bundesliga — Live & Cloud-Daten</div>
+    <div class="subtitle" id="leagueSubtitle">1. Bundesliga — Saison 2026/27</div>
     <div class="meta-info">
         <span>⚡ Web-App & Management: Jürgen Schützendorf</span>
-        <span id="apiStatus" style="color: #3fb950;">● Live-Aktualisierung aktiv</span>
+        <span class="supabase-badge" id="cloudStatusBadge">● OpenLigaDB & Live-Sync aktiv</span>
+        <div class="live-badge" id="liveIndicatorBadge"><span class="live-dot"></span> LIVE-SPIEL LÄUFT</div>
     </div>
 
-    <!-- DASHBOARD GRID -->
+    <!-- SCHALKE AUSWERTUNG -->
+    <div class="section-box">
+        <div class="section-header">
+            <span>FC Schalke 04 — Saison-Auswertung</span>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn-modal-open" onclick="openLeagueScorersModal()" style="background: var(--s04-gold); color: #070d1a;">⚽ Bundesliga-Torschützen</button>
+                <button class="btn-modal-open" onclick="openBayernMatchesModal()">📅 Alle Spiele</button>
+            </div>
+        </div>
+        <div class="stats-grid" id="bayernStatsGrid"></div>
+    </div>
+
+    <!-- 6ER KACHELN (UNTER AUSWERTUNG) -->
     <div class="dashboard-grid">
-        <!-- Kachel 1: Nächstes Spiel mit Countdown -->
+        <!-- 1. Nächstes Spiel mit Countdown -->
         <div class="dash-card">
-            <div class="dash-header">
-                <span>⏳ Nächstes Spiel</span>
-            </div>
-            <div class="dash-content" id="nextMatchText">Wird geladen...</div>
-            <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
-                <div class="dash-badge" id="countdownBadge">-- : -- : -- : --</div>
-            </div>
+            <div class="dash-card-title">⚽ Nächstes Spiel</div>
+            <div class="dash-card-content" id="nextMatchWidget">Lade nächstes Spiel...</div>
         </div>
-
-        <!-- Kachel 2: Letztes Pflichtspiel -->
+        <!-- 2. Letztes Pflichtspiel -->
         <div class="dash-card">
-            <div class="dash-header">
-                <span>🏁 Letztes Pflichtspiel</span>
-            </div>
-            <div class="dash-content" id="lastMatchText">Wird geladen...</div>
-            <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
-                <div class="dash-badge" id="lastMatchScoreBadge">- : -</div>
-            </div>
+            <div class="dash-card-title">🏁 Letztes Pflichtspiel</div>
+            <div class="dash-card-content" id="lastMatchWidget">Wird geladen...</div>
         </div>
-
-        <!-- Kachel 3: Formkurve -->
+        <!-- 3. Formkurve -->
         <div class="dash-card">
-            <div class="dash-header">
-                <span>📈 Formkurve (Letzte Spiele)</span>
-            </div>
-            <div class="dash-content" id="formContainer" style="display: flex; align-items: center; min-height: 35px;">
-                <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: normal;">Ermittle Form...</span>
-            </div>
-            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">S = Sieg | U = Unentschieden | N = Niederlage</div>
+            <div class="dash-card-title">📈 Formkurve (Letzte Spiele)</div>
+            <div class="dash-card-content" id="formCurveWidget">Noch keine beendeten Spiele<br><span style="font-size:0.75rem; color:var(--text-muted)">S = Sieg | U = Unentschieden | N = Niederlage</span></div>
         </div>
-
-        <!-- Kachel 4: Heim- & Auswärtsbilanz -->
+        <!-- 4. Heim vs. Auswärts -->
         <div class="dash-card">
-            <div class="dash-header">
-                <span>🏟️ Heim vs. Auswärts</span>
-            </div>
-            <div class="dash-content" id="homeAwayStatsText" style="font-size: 0.85rem; font-weight: normal; line-height: 1.5;">
-                Heim: Wird geladen...<br>Auswärts: Wird geladen...
-            </div>
+            <div class="dash-card-title">🏟️ Heim vs. Auswärts</div>
+            <div class="dash-card-content" id="homeAwayWidget">Heim: 0S - 0U - 0N (0 Pkt)<br>Auswärts: 0S - 0U - 0N (0 Pkt)</div>
         </div>
-
-        <!-- Kachel 5: Schalke-Legenden (Ehrenkabine mit Pop-up) -->
+        <!-- 5. Schalke-Legenden (Scrollbar & Anklickbar) -->
         <div class="dash-card">
-            <div class="dash-header">
-                <span>⭐ Schalke-Legenden (Ehrenkabine)</span>
-            </div>
-            <div class="dash-content">
-                <div class="legends-list">
-                    <div class="legend-item-link" onclick="openLegendModal('Ernst Kuzorra & Fritz Szepan', 'Die Köpfe des Schalker Kreisels', 'Die absoluten Urgesteine und Spielgestalter der legendären Meisterjahre in den 1930er und 40er Jahren. Sie stehen für den Mythos und die Spielkultur des FC Schalke 04.')">
-                        <span>Kuzorra & Szepan</span> <span style="color:var(--s04-gold);">➔</span>
-                    </div>
-                    <div class="legend-item-link" onclick="openLegendModal('Stan Libuda', 'Rechtsaußen / Dribbelkünstler', 'Eines der größten Genies der deutschen Fußballgeschichte. Unnachahmlich in den Dribblings, Publikumsliebling und Weltmeister von 1974.')">
-                        <span>Stan Libuda</span> <span style="color:var(--s04-gold);">➔</span>
-                    </div>
-                    <div class="legend-item-link" onclick="openLegendModal('Rolf Rüssmann', 'Libero & Abwehrchef', 'Eine der prägenden Figuren der 1970er Jahre, stand für kompromisslose Klasse und Torgefahr aus der Defensive.')">
-                        <span>Rolf Rüssmann</span> <span style="color:var(--s04-gold);">➔</span>
-                    </div>
-                    <div class="legend-item-link" onclick="openLegendModal('Klaus Fichtel („Tschapperl“)', 'Rekord-Bundesligaspieler (477 Spiele für S04)', 'Die absolute Abwehr-Institution. Bis heute der älteste Spieler, der jemals in der Bundesliga auf dem Platz stand.')">
-                        <span>Klaus Fichtel</span> <span style="color:var(--s04-gold);">➔</span>
-                    </div>
-                    <div class="legend-item-link" onclick="openLegendModal('Herbert Lütkebohmert', 'Mittelfeldmotor & Pokalsieger 1972', 'Unermüdlicher Kämpfer im Mittelfeld und eine der prägenden Säulen der goldenen 1970er Jahre auf Schalke.')">
-                        <span>Herbert Lütkebohmert</span> <span style="color:var(--s04-gold);">➔</span>
-                    </div>
-                    <div class="legend-item-link" onclick="openLegendModal('Erwin & Helmut Kremers', 'Die legendären Zwillinge (70er Jahre)', 'Die ersten eineiigen Zwillinge in der Bundesliga. Erwin (Angriff) und Helmut (Abwehr) wirbelten die Liga durcheinander und holten 1972 den DFB-Pokal sowie die Vizemeisterschaft nach Schalke.')">
-                        <span>Die Kremers-Zwillinge</span> <span style="color:var(--s04-gold);">➔</span>
-                    </div>
-                    <div class="legend-item-link" onclick="openLegendModal('Rudi Assauer', 'Manager-Titan (1981–1986 & 1994–2004)', 'Der Architekt des modernen Schalke. Holte die Eurofighter, gewann den DFB-Pokal, baute die VELTINS-Arena und prägte den Verein wie kein Zweiter.')">
-                        <span>Rudi Assauer</span> <span style="color:var(--s04-gold);">➔</span>
-                    </div>
-                    <div class="legend-item-link" onclick="openLegendModal('Charly Neumann', 'Betreuer-Legende & Herz des Vereins', 'Zunächst Jugendleiter, dann drei Jahrzehnte Mannschaftsbetreuer. Ein leidenschaftliches Original und Fürsorger für Fans und Spieler. Sein unsterbliches Motto: „In schlechten Zeiten müsst ihr Schalker sein. In guten gibt es genug davon.“')">
-                        <span>Charly Neumann</span> <span style="color:var(--s04-gold);">➔</span>
-                    </div>
-                    <div class="legend-item-link" onclick="openLegendModal('Klaus Fischer', 'Stürmer / Fallrückzieher-König', 'Erzielte 182 Bundesliga-Tore für S04. Weltberühmt für seine perfekten und schier unmöglichen Fallrückzieher-Tore.')">
-                        <span>Klaus Fischer</span> <span style="color:var(--s04-gold);">➔</span>
-                    </div>
-                    <div class="legend-item-link" onclick="openLegendModal('Huub Stevens', 'Jahrhunderttrainer', 'Führte die Knappen mit eiserner Disziplin zum UEFA-Pokal-Triumph 1997. Sein berühmtes Motto: „Die Null muss stehen!“')">
-                        <span>Huub Stevens</span> <span style="color:var(--s04-gold);">➔</span>
-                    </div>
-                    <div class="legend-item-link" onclick="openLegendModal('Mike Büskens („Buyo“)', 'Eurofighter, Pokalsieger & Trainer', 'Mike Büskens ist ein königsblaues Synonym für harte Arbeit, für „Maloche“, wie die Menschen im Ruhrpott zu sagen pflegen. Er wird mit den Knappen zweimal Deutscher Pokalsieger und ist eine der tragenden Säulen beim UEFA-Cup-Sieg 1997. Später Nachwuchscoach und Teil des Trainerteams der Profis.')">
-                        <span>Mike Büskens („Buyo“)</span> <span style="color:var(--s04-gold);">➔</span>
-                    </div>
-                    <div class="legend-item-link" onclick="openLegendModal('Olaf Thon', 'Mittelfeld-Regisseur & Weltmeister', 'Das Schalker Jahrhunderttalent, das schon als Teenager die Bayern schwindelig spielte und 1990 mit Deutschland Weltmeister wurde.')">
-                        <span>Olaf Thon</span> <span style="color:var(--s04-gold);">➔</span>
-                    </div>
-                    <div class="legend-item-link" onclick="openLegendModal('Ebbe Sand', 'Dänischer Stürmer & Publikumsliebling', 'Garant für Tore und Emotionen in der Arena. Torschützenkönig der Bundesliga 2001 und unvergesslicher Knappe.')">
-                        <span>Ebbe Sand</span> <span style="color:var(--s04-gold);">➔</span>
-                    </div>
-                    <div class="legend-item-link" onclick="openLegendModal('Eurofighter (Wilmots & Büskens)', 'Helden von Mailand 1997', 'Kämpften sich unvergesslich in die Herzen aller Schalker und holten den UEFA-Cup sensationell ins Ruhrgebiet.')">
-                        <span>Eurofighter (Wilmots / Büskens)</span> <span style="color:var(--s04-gold);">➔</span>
-                    </div>
+            <div class="dash-card-title">⭐ Schalke-Legenden (Ehrenkabine)</div>
+            <div class="dash-card-content">
+                <div class="legends-scroll-box">
+                    <div class="legend-row" onclick="openLegendModal('Kuzorra & Szepan')"><span>Kuzorra & Szepan</span><span style="color:var(--s04-gold)">➔</span></div>
+                    <div class="legend-row" onclick="openLegendModal('Stan Libuda')"><span>Stan Libuda</span><span style="color:var(--s04-gold)">➔</span></div>
+                    <div class="legend-row" onclick="openLegendModal('Rolf Rüssmann')"><span>Rolf Rüssmann</span><span style="color:var(--s04-gold)">➔</span></div>
+                    <div class="legend-row" onclick="openLegendModal('Klaus Fichtel')"><span>Klaus Fichtel</span><span style="color:var(--s04-gold)">➔</span></div>
+                    <div class="legend-row" onclick="openLegendModal('Klaus Fischer')"><span>Klaus Fischer</span><span style="color:var(--s04-gold)">➔</span></div>
+                    <div class="legend-row" onclick="openLegendModal('Manuel Neuer')"><span>Manuel Neuer</span><span style="color:var(--s04-gold)">➔</span></div>
+                    <div class="legend-row" onclick="openLegendModal('Huub Stevens')"><span>Huub Stevens (Jahrhunderttrainer)</span><span style="color:var(--s04-gold)">➔</span></div>
                 </div>
             </div>
         </div>
-
-        <!-- Kachel 6: Schalke-Historie & Fan-Ecke -->
+        <!-- 6. Schalke-Historie -->
         <div class="dash-card">
-            <div class="dash-header">
-                <span>📜 Schalke-Historie</span>
-                <button class="action-link" onclick="nextHistoryFact()">Nächster Fakt</button>
-            </div>
-            <div class="dash-content" id="historyFactText" style="font-size: 0.82rem; font-weight: normal; font-style: italic; line-height: 1.3; margin-bottom: 8px;">
-                FC Schalke 04 wurde am 4. Mai 1904 gegründet.
-            </div>
-            <div class="fan-links">
-                <a href="https://schalke04.de" target="_blank" class="fan-btn">🌐 S04.de</a>
-                <a href="https://shop.schalke04.de" target="_blank" class="fan-btn">🛍️ Shop</a>
+            <div class="dash-card-title"><span>📚 Schalke-Historie</span> <span style="cursor:pointer; color:var(--s04-gold)" onclick="nextHistorieFakt()">Nächster Fakt</span></div>
+            <div class="dash-card-content" id="historieWidget" style="font-style: italic; margin-bottom: 12px;">"FC Schalke 04 wurde am 4. Mai 1904 gegründet."</div>
+            <div style="display: flex; gap: 8px;">
+                <a href="https://schalke04.de" target="_blank" class="dash-btn-link">🌐 S04.de</a>
+                <a href="https://schalke04.de/shop" target="_blank" class="dash-btn-link" style="background:#86001a;">🛍️ Shop</a>
             </div>
         </div>
     </div>
@@ -711,62 +652,29 @@
     <!-- SPIELTAGS-TABELLE -->
     <div class="section-box">
         <div class="section-header">
-            <span id="matchdayTableHeader">Spieltag --</span>
+            <span id="matchdayTableHeader">Spieltag — Spiele & Ergebnisse</span>
             <div class="header-actions">
                 <button class="header-action-btn" onclick="requestPushPermission()">🔔 Push-Alarm</button>
-                <button class="header-action-btn" onclick="loadMatchday(currentMatchday)">🔄 Aktualisieren</button>
+                <button class="header-action-btn" onclick="loadFromOpenLiga(true)">🔄 Aktualisieren</button>
             </div>
         </div>
         <div class="matchday-controls">
-            <button class="matchday-btn" onclick="changeMatchday(-1)">◀ Vorheriger</button>
-            <strong id="matchdayDisplay" style="color: var(--s04-bright-blue); font-size: 1.1rem;">Spieltag --</strong>
-            <button class="matchday-btn" onclick="changeMatchday(1)">Nächster ▶</button>
+            <button class="matchday-btn" onclick="changeMatchday(-1)">◀ Vorheriger Spieltag</button>
+            <strong id="matchdayDisplay" style="color: var(--s04-bright-blue); font-size: 1.1rem;">Spieltag 1</strong>
+            <button class="matchday-btn" onclick="changeMatchday(1)">Nächster Spieltag ▶</button>
         </div>
         <div class="table-container">
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 130px; color: #ffffff;">Termin</th>
+                        <th style="width: 120px; color: #ffffff;">Termin</th>
                         <th style="text-align: right;">Heimmannschaft</th>
-                        <th style="text-align: center; width: 180px;">Ergebnis</th>
+                        <th style="text-align: center; width: 160px;">Ergebnis / Status</th>
                         <th>Gastmannschaft</th>
                     </tr>
                 </thead>
                 <tbody id="matchdayTableBody">
-                    <tr><td colspan="4" class="loading-text">Lade Spielplan...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- ADMIN BEREICH -->
-    <div class="admin-card" id="adminCard">
-        <div style="font-weight: bold; color: var(--s04-bright-blue); margin-bottom: 12px; text-transform: uppercase; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
-            <span>✏️ Admin-Testbereich</span>
-            <span style="font-size: 0.7rem; color: #3fb950;">● Admin-Modus Aktiv</span>
-        </div>
-        <button class="btn" style="background: #238636;" onclick="sendTestPush()">🚀 Test-Push Benachrichtigung senden</button>
-        <button class="btn" style="background: #e3b341; color: #0b0f19;" onclick="simulateSchalkeGoal()">⚡ S04-Tor simulieren (Test)</button>
-    </div>
-
-    <div class="admin-toggle-wrapper">
-        <button class="admin-toggle-btn" onclick="toggleAdminMode()">⚙️ Admin-Zugang</button>
-    </div>
-
-    <!-- TORSCHÜTZEN -->
-    <div class="section-box">
-        <div class="section-header" id="matchdayScorersHeader">⚽ Schalke-Torschützen</div>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 120px;">Minute / Stand</th>
-                        <th>Spieler</th>
-                        <th style="text-align: right;">Begegnung</th>
-                    </tr>
-                </thead>
-                <tbody id="matchdayScorersBody">
-                    <tr><td colspan="3" class="loading-text">Ermittle Schalke-Torschützen...</td></tr>
+                    <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">Lade Spielplan von OpenLigaDB...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -774,13 +682,11 @@
 
     <!-- GESAMT-TABELLE -->
     <div class="section-box">
-        <div class="section-header">1. Bundesliga Tabelle (Live)</div>
-        <div class="table-legend">
-            <div class="legend-item"><div class="legend-box" style="background: #2ea043;"></div> Champions League</div>
-            <div class="legend-item"><div class="legend-box" style="background: var(--s04-bright-blue);"></div> Europa League</div>
-            <div class="legend-item"><div class="legend-box" style="background: #bb8009;"></div> Conference League Q.</div>
-            <div class="legend-item"><div class="legend-box" style="background: var(--s04-gold);"></div> Relegation</div>
-            <div class="legend-item"><div class="legend-box" style="background: #da3633;"></div> Abstieg</div>
+        <div class="section-header">
+            <span>Bundesliga-Tabelle (Gesamt)</span>
+            <div class="header-actions">
+                <button class="header-action-btn" onclick="requestPushPermission()">🔔 Push-Alarm</button>
+            </div>
         </div>
         <div class="table-container">
             <table>
@@ -798,43 +704,180 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <tr><td colspan="9" class="loading-text">Lade Tabelle...</td></tr>
+                    <tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 20px;">Lade Tabelle...</td></tr>
                 </tbody>
             </table>
         </div>
+        <div style="display: flex; gap: 15px; margin-top: 10px; font-size: 0.75rem; color: var(--text-muted);">
+            <div style="display: flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; background: var(--accent-green); border-radius: 2px; display: inline-block;"></span> 1. Platz (Meister / Champions League)</div>
+            <div style="display: flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; background: var(--accent-yellow); border-radius: 2px; display: inline-block;"></span> Abstiegsplätze (16. - 18.)</div>
+        </div>
+    </div>
+
+    <!-- ADMIN BEREICH (TEST-PUSH) -->
+    <div class="admin-card" id="adminCard">
+        <div style="font-weight: bold; color: var(--s04-bright-blue); margin-bottom: 12px; text-transform: uppercase; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+            <span>🔧 Push-Benachrichtigung testen</span>
+            <span style="font-size: 0.7rem; color: #3fb950;">● Admin-Modus Aktiv</span>
+        </div>
+        <button class="btn" style="background: #238636;" onclick="sendTestPush()">🚀 Test-Push Benachrichtigung senden</button>
+    </div>
+
+    <div class="admin-toggle-wrapper">
+        <button class="admin-toggle-btn" onclick="toggleAdminMode()">⚙️ Admin-Zugang</button>
+    </div>
+</div>
+
+<!-- POPUP MODAL: TORSCHÜTZEN -->
+<div class="modal-overlay" id="leagueScorersModal">
+    <div class="modal-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+            <div style="font-weight: bold; font-size: 1.1rem; color: #ffffff;">⚽ Torschützenliste — 1. Bundesliga</div>
+            <button class="btn-danger" onclick="closeLeagueScorersModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 40px; text-align: center;">Pl.</th>
+                            <th>Spieler & Verein</th>
+                            <th style="text-align: center; width: 70px;">Tore</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leagueScorersModalBody">
+                        <tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 20px;">Lade Torschützen...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <button class="btn" style="margin-top: 15px;" onclick="closeLeagueScorersModal()">Schließen</button>
+    </div>
+</div>
+
+<!-- POPUP MODAL: ALLE SPIELE FC SCHALKE 04 -->
+<div class="modal-overlay" id="bayernMatchesModal">
+    <div class="modal-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+            <div style="font-weight: bold; font-size: 1.1rem; color: #ffffff;">📅 FC Schalke 04 — Alle Saisonspiele</div>
+            <button class="btn-danger" onclick="closeBayernMatchesModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 50px; text-align: center;">ST</th>
+                            <th style="width: 90px;">Termin</th>
+                            <th style="text-align: right;">Heim</th>
+                            <th style="text-align: center; width: 70px;">Erg.</th>
+                            <th>Gast</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bayernMatchesModalBody">
+                        <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">Lade Spiele...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <button class="btn" style="margin-top: 15px;" onclick="closeBayernMatchesModal()">Schließen</button>
+    </div>
+</div>
+
+<!-- POPUP MODAL: LEGENDEN INFO -->
+<div class="modal-overlay" id="legendModal">
+    <div class="modal-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+            <div style="font-weight: bold; font-size: 1.1rem; color: var(--s04-gold);" id="legendModalTitle">Legende</div>
+            <button class="btn-danger" onclick="closeLegendModal()">✕</button>
+        </div>
+        <div class="modal-body" id="legendModalText" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-color);">
+            Lade Informationen...
+        </div>
+        <button class="btn" style="margin-top: 15px;" onclick="closeLegendModal()">Schließen</button>
     </div>
 </div>
 
 <script>
     const SUPABASE_URL = 'https://lhusylpjnujlqomougmg.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_yXEueWILvAq-Vm2VfTuYyg_BIQeE1KK';
-    
-    let supabaseClient = null;
-    try {
-        if (typeof supabase !== 'undefined') {
-            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        }
-    } catch (e) {
-        console.error("Supabase Init Fehler:", e);
-    }
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const ADMIN_PIN = "1919";
     let isAdmin = false;
 
-    let teamLogos = {};
-    let teamApiIcons = {};
-    let previousSchalkeScores = {};
-    let allOpenLigaMatches = {};
+    // SLIDESHOW
+    const slides = [
+        { url: "https://lhusylpjnujlqomougmg.supabase.co/storage/v1/object/public/vereinslogos/mannschaft.png", name: "Mannschaft" },
+        { url: "https://lhusylpjnujlqomougmg.supabase.co/storage/v1/object/public/vereinslogos/230929_veltins-arena.png", name: "Veltins-Arena" },
+        { url: "https://lhusylpjnujlqomougmg.supabase.co/storage/v1/object/public/vereinslogos/s04.png", name: "FC Schalke 04" },
+        { url: "https://lhusylpjnujlqomougmg.supabase.co/storage/v1/object/public/vereinslogos/s04_glueck_auf.png", name: "Glück Auf" },
+        { url: "https://lhusylpjnujlqomougmg.supabase.co/storage/v1/object/public/vereinslogos/veltins_arena01.png", name: "Veltins-Arena (Innenraum)" }
+    ];
+    let currentSlideIndex = 0;
+    let slideInterval;
 
-    function openLegendModal(name, role, desc) {
-        document.getElementById('modalLegendName').textContent = name;
-        document.getElementById('modalLegendRole').textContent = role;
-        document.getElementById('modalLegendDesc').textContent = desc;
+    const legendenInfos = {
+        "Kuzorra & Szepan": "Ernst Kuzorra und Fritz Szepan sind die absoluten Urgesteine und Identifikationsfiguren des FC Schalke 04. Sie prägten die Schalker Kreisel-Ära in den 1930er Jahren und führten den Verein zu mehreren Deutschen Meisterschaften.",
+        "Stan Libuda": "Reinhard 'Stan' Libuda galt als einer der besten Dribbler des deutschen Fußballs. Unvergessen bleibt sein Kopfballtor im Europapokalfinale 1970 und seine Verdienste für die Knappen.",
+        "Rolf Rüssmann": "Rolf Rüssmann war jahrelang der Turm in der Schalker Abwehr und eine prägende Säule der erfolgreichen Mannschaft der 1970er Jahre. Später war er auch als Manager für den Verein tätig.",
+        "Klaus Fichtel": "Mit 477 Bundesligaspielen für Schalke ist 'Tscharr' Fichtel absoluter Rekordspieler der Knappen. Er stand noch mit über 43 Jahren als ältester Bundesliga-Spieler aller Zeiten auf dem Platz.",
+        "Klaus Fischer": "Klaus Fischer ist legendär für seine spektakulären Fallrückzieher und erzielte in 295 Bundesligaspielen 182 Tore für den FC Schalke 04.",
+        "Manuel Neuer": "Aus der Knappenschmiede stammend revolutionierte Manuel Neuer das Torwartspiel und feierte mit Schalke unvergessliche Champions-League-Nächte bis ins Halbfinale 2011.",
+        "Huub Stevens": "Als Jahrhunderttrainer führte der 'Jahrhunderttrainer' Huub Stevens den FC Schalke 04 1997 zum UEFA-Pokal-Sieg ('Eurofighter') und prägte den Verein nachhaltig durch eiserne Disziplin."
+    };
+
+    function openLegendModal(name) {
+        document.getElementById('legendModalTitle').textContent = "⭐ " + name;
+        document.getElementById('legendModalText').textContent = legendenInfos[name] || "Informationen zu dieser Schalke-Legende.";
         document.getElementById('legendModal').style.display = 'flex';
     }
     function closeLegendModal() {
         document.getElementById('legendModal').style.display = 'none';
     }
+
+    const historieFakten = [
+        "FC Schalke 04 wurde am 4. Mai 1904 gegründet.",
+        "Die berühmte Heimstätte des S04 ist die VELTINS-Arena in Gelsenkirchen.",
+        "Schalke ist siebenfacher Deutscher Meister und fünfmaliger DFB-Pokalsieger.",
+        "Im Jahr 1997 gewann Schalke den UEFA-Pokal als 'Eurofighter'."
+    ];
+    let historieIdx = 0;
+    function nextHistorieFakt() {
+        historieIdx = (historieIdx + 1) % historieFakten.length;
+        document.getElementById('historieWidget').textContent = `"${historieFakten[historieIdx]}"`;
+    }
+
+    function showSlide(index) {
+        if (index >= slides.length) currentSlideIndex = 0;
+        else if (index < 0) currentSlideIndex = slides.length - 1;
+        else currentSlideIndex = index;
+
+        let imgElem = document.getElementById('slideImage');
+        let captionElem = document.getElementById('slideCaption');
+
+        imgElem.style.opacity = 0;
+        setTimeout(() => {
+            imgElem.src = slides[currentSlideIndex].url;
+            captionElem.textContent = slides[currentSlideIndex].name;
+            imgElem.style.opacity = 1;
+        }, 200);
+    }
+
+    function nextSlide() { showSlide(currentSlideIndex + 1); resetTimer(); }
+    function prevSlide() { showSlide(currentSlideIndex - 1); resetTimer(); }
+    function resetTimer() {
+        clearInterval(slideInterval);
+        slideInterval = setInterval(() => { showSlide(currentSlideIndex + 1); }, 5000);
+    }
+
+    let teamLogos = {};
+    let openLigaMatches = {};
+    let previousScores = {}; 
+    let currentMatchday = 1;
+    let detailedGoalsCache = {};
+    let isInitialized = false;
+    let nextMatchDateTime = null;
 
     function urlBase64ToUint8Array(base64String) {
         const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -873,19 +916,13 @@
             const p256dh = subscription.getKey('p256dh') ? btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('p256dh')))) : '';
             const auth = subscription.getKey('auth') ? btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('auth')))) : '';
 
-            const { error } = await supabaseClient.from('push_subscriptions_s04').upsert({
+            await supabaseClient.from('push_subscriptions_s04').upsert({
                 endpoint: subscription.endpoint,
                 p256dh: p256dh,
                 auth: auth
             }, { onConflict: 'endpoint' });
 
-            if (error) {
-                console.error("Supabase Fehlerdetails:", error);
-                alert("Fehler in Supabase: " + error.message);
-            } else {
-                alert("Push-Alarm für Schalke 04 erfolgreich aktiviert! Dein Gerät ist jetzt registriert.");
-            }
-
+            alert("Push-Alarm für Schalke 04 erfolgreich aktiviert!");
         } catch (error) {
             console.error('Fehler bei der Push-Registrierung:', error);
             alert("Fehler beim Aktivieren der Benachrichtigung: " + error.message);
@@ -894,14 +931,13 @@
 
     async function sendTestPush() {
         try {
-            const targetUrl = SUPABASE_URL + '/functions/v1/send-push';
-            const response = await fetch(targetUrl, {
+            const response = await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
                 method: 'POST',
                 mode: 'cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     table: 'push_subscriptions_s04',
-                    title: "🔵 Schalke Test-Tor-Alarm!",
+                    title: "🔵 Schalke Test-Tor-Alarm",
                     body: "Das Test-Tor für den FC Schalke 04 wurde erfolgreich ausgelöst!"
                 })
             });
@@ -913,36 +949,31 @@
                 alert("Fehler von der Edge Function: " + textResponse);
             }
         } catch (e) {
+            console.error("Netzwerkfehler:", e);
             alert("Netzwerkfehler: " + e.message);
         }
     }
 
-    async function triggerSchalkeGoalPush(home, away, hScore, aScore, scorerName = '', minute = '') {
+    async function triggerAutomaticGoalPush(home, away, hScore, aScore, scorerName = '', minute = '') {
         try {
             let detail = scorerName ? 'Tor durch ' + scorerName : "Tor!";
             if (minute) {
                 detail += ' (' + minute + '. Min)';
             }
 
-            const targetUrl = SUPABASE_URL + '/functions/v1/send-push';
-            await fetch(targetUrl, {
+            await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
                 method: 'POST',
                 mode: 'cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     table: 'push_subscriptions_s04',
-                    title: '🔵 TOR FÜR SCHALKE! (' + hScore + ':' + aScore + ')',
-                    body: home + ' vs ' + away + ' — ' + detail
+                    title: `🔵 TOR FÜR SCHALKE! (${hScore}:${aScore})`,
+                    body: `${home} vs ${away} — ${detail}`
                 })
             });
         } catch (e) {
-            console.error("Fehler beim Schalke-Tor-Push:", e);
+            console.error("Fehler beim automatischen Tor-Push:", e);
         }
-    }
-
-    async function simulateSchalkeGoal() {
-        await triggerSchalkeGoalPush("FC Schalke 04", "Borussia Dortmund", 1, 0, "Klaus Fischer", "34");
-        alert("Simuliertes Schalke-Tor mit Torschütze gesendet!");
     }
 
     function toggleAdminMode() {
@@ -956,322 +987,322 @@
         if (enteredPin === ADMIN_PIN) {
             isAdmin = true;
             adminCard.style.display = 'block';
+            alert("Admin-Modus erfolgreich aktiviert!");
         } else if (enteredPin !== null) {
             alert("Falsche PIN!");
         }
     }
 
-    const historyFacts = [
-        "FC Schalke 04 wurde am 4. Mai 1904 als „Westfalia Schalke“ gegründet.",
-        "Mit über 180.000 Mitgliedern ist S04 einer der größten Sportvereine der Welt.",
-        "Die legendäre Glückauf-Kampfbahn war jahrzehntelang die Heimstätte der Knappen.",
-        "1997 gewannen die Eurofighter sensationell den UEFA-Pokal im San Siro in Mailand.",
-        "Der FC Schalke 04 wurde 7-mal Deutscher Meister und 5-mal DFB-Pokalsieger.",
-        "Die VELTINS-Arena verfügt über ein verschiebbares Dach und einen ausfahrbaren Rasen."
-    ];
-    let currentFactIndex = 0;
-    function nextHistoryFact() {
-        currentFactIndex = (currentFactIndex + 1) % historyFacts.length;
-        document.getElementById('historyFactText').textContent = historyFacts[currentFactIndex];
-    }
-
-    const slides = [
-        { url: "https://lhusylpjnujlqomougmg.supabase.co/storage/v1/object/public/vereinslogos/mannschaft.png", name: "Mannschaft" },
-        { url: "https://lhusylpjnujlqomougmg.supabase.co/storage/v1/object/public/vereinslogos/230929_veltins-arena.png", name: "Veltins-Arena" },
-        { url: "https://lhusylpjnujlqomougmg.supabase.co/storage/v1/object/public/vereinslogos/s04.png", name: "FC Schalke 04" },
-        { url: "https://lhusylpjnujlqomougmg.supabase.co/storage/v1/object/public/vereinslogos/s04_glueck_auf.png", name: "Glück Auf — Schalke" },
-        { url: "https://lhusylpjnujlqomougmg.supabase.co/storage/v1/object/public/vereinslogos/veltins_arena01.png", name: "Veltins-Arena (Innenraum)" }
-    ];
-    let currentSlideIndex = 0;
-    let slideInterval;
-
-    function showSlide(index) {
-        if (index >= slides.length) currentSlideIndex = 0;
-        else if (index < 0) currentSlideIndex = slides.length - 1;
-        else currentSlideIndex = index;
-        let imgElem = document.getElementById('slideImage');
-        let captionElem = document.getElementById('slideCaption');
-        if (!imgElem) return;
-        imgElem.style.opacity = 0;
-        setTimeout(() => {
-            imgElem.src = slides[currentSlideIndex].url;
-            captionElem.textContent = slides[currentSlideIndex].name;
-            imgElem.style.opacity = 1;
-        }, 200);
-    }
-    function nextSlide() { showSlide(currentSlideIndex + 1); resetTimer(); }
-    function prevSlide() { showSlide(currentSlideIndex - 1); resetTimer(); }
-    function resetTimer() {
-        clearInterval(slideInterval);
-        slideInterval = setInterval(() => { showSlide(currentSlideIndex + 1); }, 5000);
-    }
-
-    let currentMatchday = 5;
-    let maxMatchday = 34;
-    const leagueShortcut = 'bl1';
-    let seasonYear = '2026';
-    let nextMatchDateObj = null;
-
-    async function initApp() {
-        if (supabaseClient) {
-            try {
-                let { data } = await supabaseClient.from('bundesliga_vereins_logos').select('*');
-                if (data) {
-                    teamLogos = {};
-                    data.forEach(item => {
-                        if (item.team_name && item.logo_url) {
-                            teamLogos[item.team_name.trim().toLowerCase()] = item.logo_url;
-                        }
-                    });
-                }
-            } catch (e) {
-                console.log("Logos konnten nicht aus Cloud geladen werden", e);
-            }
-        }
-
-        await loadTable();
-        await fetchAllOpenLigaMatches();
-
-        setInterval(async () => {
-            try {
-                await loadTable();
-                await fetchAllOpenLigaMatches();
-            } catch(err) {
-                console.error("Hintergrund-Aktualisierungsfehler:", err);
-            }
-        }, 60000);
-
-        setInterval(updateCountdown, 1000);
-    }
-
-    async function fetchAllOpenLigaMatches() {
+    async function fetchMatchDetails(matchID) {
+        if (detailedGoalsCache[matchID]) return detailedGoalsCache[matchID];
         try {
-            let res = await fetch(`https://api.openligadb.de/getmatchdata/${leagueShortcut}/${seasonYear}`);
-            if (!res.ok) return;
-            let data = await res.json();
+            let res = await fetch(`https://api.openligadb.de/getmatchdata/${matchID}`);
+            let matchData = await res.json();
+            
+            let homeGoals = [];
+            let awayGoals = [];
+            
+            let rawGoals = matchData.goals || matchData.matchGoals || matchData.goalGetters || [];
+            if ((!rawGoals || rawGoals.length === 0) && matchData.goalsData && Array.isArray(matchData.goalsData)) {
+                rawGoals = matchData.goalsData;
+            }
 
-            allOpenLigaMatches = {};
-            let foundMatchday = null;
+            if (Array.isArray(rawGoals) && rawGoals.length > 0) {
+                rawGoals.sort((a, b) => (a.matchMinute || a.goalMinute || 0) - (b.matchMinute || b.goalMinute || 0));
 
-            if (Array.isArray(data)) {
-                data.forEach(match => {
-                    let mDay = match.group && match.group.groupOrderID ? match.group.groupOrderID : 1;
-                    if (!allOpenLigaMatches[mDay]) allOpenLigaMatches[mDay] = [];
-                    allOpenLigaMatches[mDay].push(match);
+                let prevH = 0;
+                let prevA = 0;
 
-                    let hasUnfinished = !match.matchIsFinished;
-                    if (hasUnfinished && !foundMatchday) {
-                        foundMatchday = mDay;
+                rawGoals.forEach(g => {
+                    let isOwn = g.isOwnGoal === true || (g.comment && g.comment.toLowerCase().includes('eigentor'));
+                    let name = g.goalGetterName || g.name || g.playerName || "Tor";
+                    let min = g.matchMinute !== undefined ? g.matchMinute : (g.goalMinute !== undefined ? g.goalMinute : '');
+                    let minStr = min !== '' ? `${min}''` : '';
+                    
+                    let goalText = isOwn ? `🚫 ${name} (Eigentor) (${minStr})` : `⚽ ${name} (${minStr})`;
+                    
+                    let currH = g.scoreTeam1 ?? prevH;
+                    let currA = g.scoreTeam2 ?? prevA;
+
+                    let isHomeGoal = false;
+                    if (currH > prevH) {
+                        isHomeGoal = true;
+                    } else if (currA > prevA) {
+                        isHomeGoal = false;
+                    } else if (matchData.team1 && (g.teamID === matchData.team1.teamID || g.teamId === matchData.team1.teamID)) {
+                        isHomeGoal = true;
+                    } else if (matchData.team2 && (g.teamID === matchData.team2.teamID || g.teamId === matchData.team2.teamID)) {
+                        isHomeGoal = false;
+                    } else {
+                        isHomeGoal = true;
+                    }
+
+                    prevH = currH;
+                    prevA = currA;
+
+                    if (isHomeGoal) {
+                        homeGoals.push(goalText);
+                    } else {
+                        awayGoals.push(goalText);
                     }
                 });
             }
 
-            if (foundMatchday) {
-                currentMatchday = foundMatchday;
+            let details = { home: homeGoals, away: awayGoals };
+            detailedGoalsCache[matchID] = details;
+            return details;
+        } catch (e) {
+            return { home: [], away: [] };
+        }
+    }
+
+    async function loadFromOpenLiga(showAlert = false) {
+        try {
+            let [response, logosRes] = await Promise.all([
+                fetch('https://api.openligadb.de/getmatchdata/bl1/2026'),
+                supabaseClient.from('bundesliga_vereins_logos').select('*')
+            ]);
+            let data = await response.json();
+
+            if (logosRes.data) {
+                teamLogos = {};
+                logosRes.data.forEach(item => {
+                    if (item.team_name && item.logo_url) {
+                        teamLogos[item.team_name.trim().toLowerCase()] = item.logo_url;
+                    }
+                });
             }
 
-            renderMatchday(currentMatchday);
+            openLigaMatches = {};
+            let hasLiveMatches = false;
+
+            if (Array.isArray(data)) {
+                data.forEach(match => {
+                    if (match.team1 && match.team1.teamName && match.team1.teamIconUrl) {
+                        teamLogos[match.team1.teamName.trim().toLowerCase()] = match.team1.teamIconUrl;
+                    }
+                    if (match.team2 && match.team2.teamName && match.team2.teamIconUrl) {
+                        teamLogos[match.team2.teamName.trim().toLowerCase()] = match.team2.teamIconUrl;
+                    }
+
+                    let isCurrentlyLive = !match.matchIsFinished && match.matchResults && match.matchResults.length > 0;
+                    if (isCurrentlyLive) hasLiveMatches = true;
+
+                    let mDay = match.group && match.group.groupOrderID ? match.group.groupOrderID : 1;
+                    if (!openLigaMatches[mDay]) openLigaMatches[mDay] = [];
+
+                    let homeTeam = match.team1.teamName;
+                    let awayTeam = match.team2.teamName;
+                    let matchId = 'ol_' + match.matchID;
+
+                    let homeScore = null;
+                    let awayScore = null;
+
+                    if (match.matchIsFinished && match.matchResults && match.matchResults.length > 0) {
+                        let res = match.matchResults.find(r => r.resultTypeID === 2) || match.matchResults[match.matchResults.length - 1];
+                        if (res) {
+                            homeScore = res.pointsTeam1;
+                            awayScore = res.pointsTeam2;
+                        }
+                    } else if (match.matchResults && match.matchResults.length > 0) {
+                        let res = match.matchResults[match.matchResults.length - 1];
+                        if (res && res.pointsTeam1 !== null && res.pointsTeam2 !== null) {
+                            homeScore = res.pointsTeam1;
+                            awayScore = res.pointsTeam2;
+                        }
+                    }
+
+                    if (homeScore !== null && awayScore !== null) {
+                        let prev = previousScores[matchId];
+                        if (prev !== undefined) {
+                            if (homeScore > prev.home || awayScore > prev.away) {
+                                let lastGoalObj = (match.goals && match.goals.length > 0) ? match.goals[match.goals.length - 1] : null;
+                                let scorer = lastGoalObj ? lastGoalObj.goalGetterName : '';
+                                let min = lastGoalObj ? lastGoalObj.matchMinute : '';
+
+                                if (homeTeam.toLowerCase().includes('schalke') || awayTeam.toLowerCase().includes('schalke')) {
+                                    triggerAutomaticGoalPush(homeTeam, awayTeam, homeScore, awayScore, scorer, min);
+                                }
+                            }
+                        }
+                        previousScores[matchId] = { home: homeScore, away: awayScore };
+                    }
+
+                    let matchDateObj = new Date(match.matchDateTime);
+                    let dateStr = match.matchDateTime ? match.matchDateTime.split('T')[0] : "";
+                    let timeStr = !isNaN(matchDateObj.getTime()) ? matchDateObj.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : "15:30";
+
+                    openLigaMatches[mDay].push({
+                        match_id: matchId,
+                        matchID: match.matchID,
+                        home: homeTeam,
+                        away: awayTeam,
+                        date: dateStr,
+                        time: timeStr,
+                        homeScore: homeScore,
+                        awayScore: awayScore,
+                        isFinished: match.matchIsFinished,
+                        dateTime: match.matchDateTime
+                    });
+                });
+            }
+
+            let liveBadge = document.getElementById('liveIndicatorBadge');
+            if (liveBadge) {
+                liveBadge.style.display = hasLiveMatches ? 'flex' : 'none';
+            }
+
+            if (!isInitialized) {
+                isInitialized = true;
+                currentMatchday = determineCurrentMatchday();
+            }
+
+            preloadAllFinishedMatchDetails();
+
+            if (showAlert) alert("Daten erfolgreich aktualisiert!");
         } catch (e) {
             console.error("Fehler beim Abrufen von OpenLigaDB:", e);
-            document.getElementById('matchdayTableBody').innerHTML = `<tr><td colspan="4" class="loading-text">Fehler beim Laden der Spiele.</td></tr>`;
+            if (showAlert) alert("Fehler beim Aktualisieren der Daten.");
         }
+
+        renderAll();
     }
 
-    function renderMatchday(matchday) {
-        currentMatchday = Math.max(1, Math.min(maxMatchday, matchday));
-        document.getElementById('matchdayDisplay').textContent = `Spieltag \${currentMatchday}`;
-        document.getElementById('matchdayTableHeader').textContent = `Spieltag \${currentMatchday} — Spiele & Ergebnisse`;
-        document.getElementById('matchdayScorersHeader').textContent = `⚽ Schalke-Torschützen — Spieltag \${currentMatchday}`;
-
-        let matches = allOpenLigaMatches[currentMatchday] || [];
-        renderMatches(matches);
-        renderSchalkeMatchdayScorers(matches);
-        extractDashboardData(matches);
-    }
-
-    function loadMatchday(matchday) {
-        renderMatchday(matchday);
-    }
-
-    function getTeamHtml(teamName, teamIconUrl = '', alignRight = false) {
-        let key = teamName.trim().toLowerCase();
-        let logoUrl = teamLogos[key] || teamApiIcons[key] || teamIconUrl;
-        let logoHtml = logoUrl ? `<img src="${logoUrl}" alt="${teamName}" class="team-mini-logo">` : ``;
-
-        if (alignRight) {
-            return `<div class="team-cell-content" style="justify-content: flex-end;"><span>${teamName}</span>${logoHtml}</div>`;
-        } else {
-            return `<div class="team-cell-content">${logoHtml}<span>${teamName}</span></div>`;
-        }
-    }
-
-    async function loadTable() {
-        try {
-            let res = await fetch(`https://api.openligadb.de/getbltable/${leagueShortcut}/${seasonYear}`);
-            if (!res.ok) return;
-            let data = await res.json();
-            renderTable(data);
-        } catch (e) {
-            console.error("Fehler beim Laden der Tabelle:", e);
-        }
-    }
-
-    async function extractDashboardData(matchdayMatches) {
-        let schalkeMatch = null;
-        if (Array.isArray(matchdayMatches)) {
-            schalkeMatch = matchdayMatches.find(m => 
-                m.team1.teamName.toLowerCase().includes('schalke') || m.team2.teamName.toLowerCase().includes('schalke')
-            );
-        }
-
-        let nextText = document.getElementById('nextMatchText');
-        let countdownBadge = document.getElementById('countdownBadge');
-
-        if (schalkeMatch && !schalkeMatch.matchIsFinished) {
-            let hName = schalkeMatch.team1.teamName;
-            let aName = schalkeMatch.team2.teamName;
-            nextMatchDateObj = new Date(schalkeMatch.matchDateTime);
-            nextText.textContent = `${hName} vs ${aName}`;
-            updateCountdown();
-        } else {
-            nextText.textContent = `Spieltag ${currentMatchday} Partie`;
-            if (schalkeMatch) {
-                nextMatchDateObj = new Date(schalkeMatch.matchDateTime);
-                updateCountdown();
-            }
-        }
-
-        if (currentMatchday > 1) {
-            let prevMatches = allOpenLigaMatches[currentMatchday - 1] || [];
-            let lastMatch = prevMatches.find(m => 
-                m.team1.teamName.toLowerCase().includes('schalke') || m.team2.teamName.toLowerCase().includes('schalke')
-            );
-            if (lastMatch && lastMatch.matchIsFinished) {
-                let hName = lastMatch.team1.teamName;
-                let aName = lastMatch.team2.teamName;
-                let resObj = lastMatch.matchResults.find(r => r.resultName === 'Endergebnis') || lastMatch.matchResults[lastMatch.matchResults.length - 1];
-                let hG = resObj ? resObj.pointsTeam1 : 0;
-                let aG = resObj ? resObj.pointsTeam2 : 0;
-                document.getElementById('lastMatchText').textContent = `${hName} vs ${aName}`;
-                document.getElementById('lastMatchScoreBadge').textContent = `${hG} : ${aG}`;
-            }
-        }
-
-        loadFormAndStats();
-    }
-
-    async function loadFormAndStats() {
-        let formContainer = document.getElementById('formContainer');
-        let homeAwayText = document.getElementById('homeAwayStatsText');
-        
-        let results = [];
-        for (let d = 1; d < currentMatchday; d++) {
-            let matches = allOpenLigaMatches[d] || [];
-            let sMatch = matches.find(m => m.team1.teamName.toLowerCase().includes('schalke') || m.team2.teamName.toLowerCase().includes('schalke'));
-            if (sMatch && sMatch.matchIsFinished) {
-                results.push(sMatch);
-            }
-        }
-
-        if (results.length === 0) {
-            formContainer.innerHTML = `<span style="font-size:0.8rem; color:var(--text-muted);">Noch keine beendeten Spiele</span>`;
-            homeAwayText.innerHTML = `Heim: 0S - 0U - 0N (0 Pkt)<br>Auswärts: 0S - 0U - 0N (0 Pkt)`;
-            return;
-        }
-
-        let formHtml = `<div class="form-container">`;
-        results.slice(-5).forEach(m => {
-            let isHome = m.team1.teamName.toLowerCase().includes('schalke');
-            let res = m.matchResults.find(r => r.resultName === 'Endergebnis') || m.matchResults[m.matchResults.length - 1];
-            if (res) {
-                let sG = isHome ? res.pointsTeam1 : res.pointsTeam2;
-                let oG = isHome ? res.pointsTeam2 : res.pointsTeam1;
-                if (sG > oG) formHtml += `<div class="form-dot form-s">S</div>`;
-                else if (sG === oG) formHtml += `<div class="form-dot form-u">U</div>`;
-                else formHtml += `<div class="form-dot form-n">N</div>`;
-            }
-        });
-        formHtml += `</div>`;
-        formContainer.innerHTML = formHtml;
-
-        let hW=0, hD=0, hL=0, aW=0, aD=0, aL=0;
-        results.forEach(m => {
-            let isHome = m.team1.teamName.toLowerCase().includes('schalke');
-            let res = m.matchResults.find(r => r.resultName === 'Endergebnis') || m.matchResults[m.matchResults.length - 1];
-            if (res) {
-                let sG = isHome ? res.pointsTeam1 : res.pointsTeam2;
-                let oG = isHome ? res.pointsTeam2 : res.pointsTeam1;
-                if (isHome) {
-                    if (sG > oG) hW++; else if (sG === oG) hD++; else hL++;
-                } else {
-                    if (sG > oG) aW++; else if (sG === oG) aD++; else aL++;
-                }
-            }
-        });
-        homeAwayText.innerHTML = `
-            🏠 Heim: <strong>${hW}S - ${hD}U - ${hL}N</strong> (${hW*3+hD} Pkt)<br>
-            ✈️ Auswärts: <strong>${aW}S - ${aD}U - ${aL}N</strong> (${aW*3+aD} Pkt)
-        `;
-    }
-
-    function renderSchalkeMatchdayScorers(matches) {
-        let tbody = document.getElementById('matchdayScorersBody');
-        tbody.innerHTML = '';
-
-        let schalkeGoals = [];
-        if (Array.isArray(matches)) {
-            matches.forEach(match => {
-                let hTeam = match.team1.teamName;
-                let aTeam = match.team2.teamName;
-                let hId = match.team1.teamId;
-                let aId = match.team2.teamId;
-                
-                if (hTeam.toLowerCase().includes('schalke') || aTeam.toLowerCase().includes('schalke')) {
-                    if (Array.isArray(match.goals) && match.goals.length > 0) {
-                        match.goals.forEach(g => {
-                            let scoringTeam = (g.teamId === hId) ? hTeam : ((g.teamId === aId) ? aTeam : hTeam);
-                            if (scoringTeam.toLowerCase().includes('schalke')) {
-                                let hPts = (g.scoreTeam1 !== null && g.scoreTeam1 !== undefined) ? g.scoreTeam1 : g.scoreGoal1;
-                                let aPts = (g.scoreTeam2 !== null && g.scoreTeam2 !== undefined) ? g.scoreTeam2 : g.scoreGoal2;
-                                let scoreStr = (hPts !== undefined && aPts !== undefined) ? `${hPts}:${aPts}` : "";
-
-                                schalkeGoals.push({
-                                    minute: g.matchMinute || '?',
-                                    player: g.goalGetterName || 'Unbekannt',
-                                    score: scoreStr,
-                                    matchName: `${hTeam} vs ${aTeam}`
-                                });
-                            }
-                        });
+    async function preloadAllFinishedMatchDetails() {
+        for (let mDay in openLigaMatches) {
+            let matches = openLigaMatches[mDay];
+            if (Array.isArray(matches)) {
+                for (let m of matches) {
+                    if ((m.homeScore !== null && m.homeScore !== undefined) || m.isFinished) {
+                        await fetchMatchDetails(m.matchID);
                     }
                 }
-            });
+            }
+        }
+    }
+
+    function determineCurrentMatchday() {
+        const today = new Date().toISOString().split('T')[0];
+        let bestMatchday = 1;
+        let minTimeDiff = Infinity;
+        let hasOngoingOrPast = false;
+
+        for (let mDay in openLigaMatches) {
+            let matches = openLigaMatches[mDay];
+            if (!Array.isArray(matches) || matches.length === 0) continue;
+
+            for (let m of matches) {
+                if (!m.dateTime) continue;
+                let matchDate = m.dateTime.split('T')[0];
+                let timeDiff = Math.abs(new Date(matchDate) - new Date(today));
+
+                if (matchDate >= today && timeDiff < minTimeDiff) {
+                    minTimeDiff = timeDiff;
+                    bestMatchday = parseInt(mDay);
+                    hasOngoingOrPast = true;
+                } else if (!hasOngoingOrPast && matchDate <= today) {
+                    bestMatchday = parseInt(mDay);
+                }
+            }
+        }
+        return Math.max(1, Math.min(34, bestMatchday));
+    }
+
+    function changeMatchday(amount) {
+        currentMatchday = Math.max(1, Math.min(34, currentMatchday + amount));
+        renderAll();
+    }
+
+    function renderAll() {
+        document.getElementById('matchdayDisplay').textContent = "Spieltag " + currentMatchday;
+        document.getElementById('matchdayTableHeader').textContent = "Spieltag " + currentMatchday + " — Spiele & Ergebnisse";
+        
+        renderMatchdayTable();
+        renderTable();
+        renderBayernStats();
+        updateWidgets();
+    }
+
+    function updateWidgets() {
+        let allS04Matches = [];
+        for (let mDay in openLigaMatches) {
+            let matches = openLigaMatches[mDay];
+            if (Array.isArray(matches)) {
+                matches.forEach(m => {
+                    if (m.home.toLowerCase().includes('schalke') || m.away.toLowerCase().includes('schalke')) {
+                        allS04Matches.push(Object.assign({ matchday: parseInt(mDay) }, m));
+                    }
+                });
+            }
+        }
+        allS04Matches.sort((a, b) => new Date(a.dateTime || 0) - new Date(b.dateTime || 0));
+
+        let now = new Date();
+        let nextMatch = allS04Matches.find(m => new Date(m.dateTime || 0) >= now && (!m.homeScore && m.homeScore !== 0));
+        let pastMatches = allS04Matches.filter(m => (m.homeScore !== null && m.homeScore !== undefined) || m.isFinished);
+        let lastMatch = pastMatches.length > 0 ? pastMatches[pastMatches.length - 1] : null;
+
+        // 1. Nächstes Spiel Widget mit Countdown
+        let nextWidget = document.getElementById('nextMatchWidget');
+        if (nextMatch && nextMatch.dateTime) {
+            nextMatchDateTime = new Date(nextMatch.dateTime);
+            let dt = nextMatch.date ? nextMatch.date.split('-').reverse().join('.') : '';
+            nextWidget.innerHTML = `<strong>ST ${nextMatch.matchday}</strong> — ${dt} ${nextMatch.time || ''}<br><div style="margin-top:4px; font-weight:bold;">${nextMatch.home} vs ${nextMatch.away}</div><div id="matchCountdown" style="margin-top:6px; font-size:0.8rem; color:var(--s04-gold);"></div>`;
+            updateCountdown();
+        } else {
+            nextWidget.innerHTML = "Kein anstehendes Spiel gefunden.";
+            nextMatchDateTime = null;
         }
 
-        if (schalkeGoals.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" class="loading-text">An diesem Spieltag keine Schalke-Tore erfasst.</td></tr>`;
-            return;
+        // 2. Letztes Pflichtspiel Widget
+        let lastWidget = document.getElementById('lastMatchWidget');
+        if (lastMatch) {
+            let dt = lastMatch.date ? lastMatch.date.split('-').reverse().join('.') : '';
+            lastWidget.innerHTML = `<strong>ST ${lastMatch.matchday}</strong> (${dt})<br><div style="margin-top:6px; font-weight:bold;">${lastMatch.home} ${lastMatch.homeScore}:${lastMatch.awayScore} ${lastMatch.away}</div>`;
+        } else {
+            lastWidget.innerHTML = "Noch kein beendetes Spiel.";
         }
 
-        schalkeGoals.forEach(item => {
-            let tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><strong>${item.minute}. Min</strong> <span style="color:var(--s04-gold); font-size:0.8rem;">(${item.score})</span></td>
-                <td style="font-weight: bold; color: #ffffff;">${item.player}</td>
-                <td style="text-align: right; color: var(--text-muted); font-size: 0.8rem;">${item.matchName}</td>
-            `;
-            tbody.appendChild(tr);
+        // 3. Formkurve Widget
+        let formWidget = document.getElementById('formCurveWidget');
+        if (pastMatches.length > 0) {
+            let last5 = pastMatches.slice(-5);
+            let badges = last5.map(m => {
+                let isHome = m.home.toLowerCase().includes('schalke');
+                let myG = isHome ? m.homeScore : m.awayScore;
+                let oppG = isHome ? m.awayScore : m.homeScore;
+                if (myG > oppG) return '<span style="background:#2ea043; color:#fff; padding:2px 6px; border-radius:3px; font-weight:bold;">S</span>';
+                else if (myG === oppG) return '<span style="background:#e3b341; color:#000; padding:2px 6px; border-radius:3px; font-weight:bold;">U</span>';
+                else return '<span style="background:#f85149; color:#fff; padding:2px 6px; border-radius:3px; font-weight:bold;">N</span>';
+            }).join(' ');
+            formWidget.innerHTML = `<div style="display:flex; gap:6px; align-items:center; margin-bottom:4px;">${badges}</div><span style="font-size:0.75rem; color:var(--text-muted)">Letzte ${last5.length} Pflichtspiele</span>`;
+        }
+
+        // 4. Heim vs. Auswärts Widget
+        let homeW = {p:0, s:0, u:0, n:0, pts:0};
+        let awayW = {p:0, s:0, u:0, n:0, pts:0};
+        pastMatches.forEach(m => {
+            let isHome = m.home.toLowerCase().includes('schalke');
+            let myG = isHome ? m.homeScore : m.awayScore;
+            let oppG = isHome ? m.awayScore : m.homeScore;
+            let obj = isHome ? homeW : awayW;
+            obj.p++;
+            if (myG > oppG) { obj.s++; obj.pts += 3; }
+            else if (myG === oppG) { obj.u++; obj.pts += 1; }
+            else { obj.n++; }
         });
+        document.getElementById('homeAwayWidget').innerHTML = `Heim: ${homeW.s}S - ${homeW.u}U - ${homeW.n}N (${homeW.pts} Pkt)<br>Auswärts: ${awayW.s}S - ${awayW.u}U - ${awayW.n}N (${awayW.pts} Pkt)`;
     }
 
     function updateCountdown() {
-        if (!nextMatchDateObj) return;
+        if (!nextMatchDateTime) return;
         let now = new Date();
-        let diff = nextMatchDateObj - now;
+        let diff = nextMatchDateTime - now;
+        let cdElem = document.getElementById('matchCountdown');
+        if (!cdElem) return;
 
-        let badge = document.getElementById('countdownBadge');
         if (diff <= 0) {
-            badge.textContent = "LIVE / Läuft";
+            cdElem.textContent = "🔴 Spiel läuft oder hat begonnen!";
             return;
         }
 
@@ -1280,164 +1311,311 @@
         let minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         let seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-        badge.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        cdElem.textContent = `⏳ Noch ${days}T ${hours}Std ${minutes}Min ${seconds}Sek`;
     }
+    setInterval(updateCountdown, 1000);
 
-    function changeMatchday(dir) {
-        let newDay = currentMatchday + dir;
-        if (newDay >= 1 && newDay <= maxMatchday) {
-            renderMatchday(newDay);
-        }
-    }
+    function getTeamHtml(teamName, alignRight = false, goals = []) {
+        let logoUrl = teamLogos[teamName.trim().toLowerCase()] || "";
+        let logoHtml = logoUrl ? '<img src="' + logoUrl + '" alt="' + teamName + '" class="team-mini-logo">' : '';
 
-    function renderTable(data) {
-        let tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '';
-
-        if (!Array.isArray(data) || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="9" class="loading-text">Keine Tabellendaten verfügbar.</td></tr>`;
-            return;
+        let goalsHtml = '';
+        if (goals && goals.length > 0) {
+            let alignmentStyle = alignRight ? 'text-align: right;' : 'text-align: left;';
+            let indentStyle = alignRight ? 'padding-right: 30px;' : 'padding-left: 30px;';
+            let goalsText = goals.join('<br>');
+            goalsHtml = `<div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; line-height: 1.3; ${alignmentStyle} ${indentStyle}">${goalsText}</div>`;
         }
 
-        data.forEach((row, idx) => {
-            if (row.teamIconUrl) {
-                teamApiIcons[row.teamName.trim().toLowerCase()] = row.teamIconUrl;
-            }
-
-            let rank = idx + 1;
-            let isSchalke = row.teamName.toLowerCase().includes('schalke');
-            let tr = document.createElement('tr');
-
-            if (rank >= 1 && rank <= 4) tr.classList.add('cl-zone');
-            else if (rank === 5) tr.classList.add('el-zone');
-            else if (rank === 6) tr.classList.add('ecl-zone');
-            else if (rank === 16) tr.classList.add('relegation-zone');
-            else if (rank >= 17) tr.classList.add('relegation-direct-zone');
-
-            if (isSchalke) tr.classList.add('s04-team-row');
-
-            let teamCellHtml = getTeamHtml(row.teamName, row.teamIconUrl, false);
-
-            tr.innerHTML = `
-                <td><strong>${rank}.</strong></td>
-                <td>${teamCellHtml}</td>
-                <td style="text-align: center;">${row.matches}</td>
-                <td style="text-align: center;">${row.won}</td>
-                <td style="text-align: center;">${row.draw}</td>
-                <td style="text-align: center;">${row.lost}</td>
-                <td style="text-align: center;">${row.goals}:${row.opponentGoals}</td>
-                <td style="text-align: center;">${row.goalDiff > 0 ? '+' + row.goalDiff : row.goalDiff}</td>
-                <td style="text-align: center; font-weight: bold;">${row.points}</td>
+        if (alignRight) {
+            return `
+                <div style="display: flex; flex-direction: column;">
+                    <div class="team-cell right">
+                        <span>${teamName}</span>
+                        ${logoHtml}
+                    </div>
+                    ${goalsHtml}
+                </div>
             `;
-            tbody.appendChild(tr);
-        });
+        } else {
+            return `
+                <div style="display: flex; flex-direction: column;">
+                    <div class="team-cell">
+                        ${logoHtml}
+                        <span>${teamName}</span>
+                    </div>
+                    ${goalsHtml}
+                </div>
+            `;
+        }
     }
 
-    function renderMatches(data) {
-        let tbody = document.getElementById('matchdayTableBody');
-        tbody.innerHTML = '';
+    async function openLeagueScorersModal() {
+        let tbody = document.getElementById('leagueScorersModalBody');
+        tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 20px;">Lade Torschützen...</td></tr>`;
+        document.getElementById('leagueScorersModal').style.display = 'flex';
 
-        if (!Array.isArray(data) || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" class="loading-text">Keine Spiele für diesen Spieltag gefunden.</td></tr>`;
-            return;
+        await preloadAllFinishedMatchDetails();
+
+        let scorersMap = {};
+
+        for (let matchID in detailedGoalsCache) {
+            let details = detailedGoalsCache[matchID];
+            for (let mDay in openLigaMatches) {
+                let found = openLigaMatches[mDay].find(m => m.matchID == matchID);
+                if (found) {
+                    let parseGoals = (list, team) => {
+                        list.forEach(gText => {
+                            if (gText.includes('🚫')) return;
+
+                            let clean = gText.replace('⚽', '').trim();
+                            let playerName = clean.split('(')[0].trim();
+                            
+                            if (playerName && playerName.toLowerCase() !== 'tor') {
+                                if (!scorersMap[playerName]) scorersMap[playerName] = { count: 0, team: team };
+                                scorersMap[playerName].count++;
+                            }
+                        });
+                    };
+                    parseGoals(details.home, found.home);
+                    parseGoals(details.away, found.away);
+                    break;
+                }
+            }
         }
 
-        let now = new Date();
+        let scorersArray = Object.keys(scorersMap).map(name => ({
+            name: name,
+            goals: scorersMap[name].count,
+            team: scorersMap[name].team
+        }));
 
-        data.forEach(match => {
-            let homeName = match.team1.teamName;
-            let awayName = match.team2.teamName;
-            let homeIcon = match.team1.teamIconUrl;
-            let awayIcon = match.team2.teamIconUrl;
+        tbody.innerHTML = '';
+        if (scorersArray.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 20px;">Noch keine Torschützen in dieser Saison erfasst.</td></tr>`;
+        } else {
+            scorersArray.sort((a, b) => b.goals - a.goals);
+            scorersArray.forEach((s, idx) => {
+                let tr = document.createElement('tr');
+                let teamHtml = getTeamHtml(s.team, false);
+                tr.innerHTML = `
+                    <td style="text-align: center; font-weight: bold; color: var(--s04-bright-blue);">${idx + 1}.</td>
+                    <td>
+                        <div style="font-weight: bold; color: #ffffff;">${s.name}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">${teamHtml}</div>
+                    </td>
+                    <td style="text-align: center; font-weight: bold; color: var(--s04-bright-blue); font-size: 1.1rem;">${s.goals}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    }
 
-            if (homeName && homeIcon) teamApiIcons[homeName.trim().toLowerCase()] = homeIcon;
-            if (awayName && awayIcon) teamApiIcons[awayName.trim().toLowerCase()] = awayIcon;
+    function closeLeagueScorersModal() { document.getElementById('leagueScorersModal').style.display = 'none'; }
 
-            let isS04 = homeName.toLowerCase().includes('schalke') || awayName.toLowerCase().includes('schalke');
-            let tr = document.createElement('tr');
-            if (isS04) tr.classList.add('s04-match-row');
+    function openBayernMatchesModal() {
+        let modalBody = document.getElementById('bayernMatchesModalBody');
+        modalBody.innerHTML = '';
 
-            let dateObj = new Date(match.matchDateTime);
-            let dateStr = dateObj.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
-            let timeStr = dateObj.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-
-            let scoreDisplay = `<span style="color:var(--text-muted);">${dateStr} — ${timeStr} Uhr</span>`;
-            
-            let apiScorers = [];
-            if (match.goals && Array.isArray(match.goals)) {
-                match.goals.forEach(goal => {
-                    let name = goal.goalGetterName;
-                    if (name) {
-                        let min = (goal.matchMinute !== null && goal.matchMinute !== undefined) ? goal.matchMinute + "'" : "";
-                        let hPts = (goal.scoreTeam1 !== null && goal.scoreTeam1 !== undefined) ? goal.scoreTeam1 : goal.scoreGoal1;
-                        let aPts = (goal.scoreTeam2 !== null && goal.scoreTeam2 !== undefined) ? goal.scoreTeam2 : goal.scoreGoal2;
-                        
-                        let scoreStr = (hPts !== undefined && aPts !== undefined) ? ` (${hPts}:${aPts})` : "";
-                        let minStr = min ? ` (${min})` : "";
-                        apiScorers.push(`⚽ ${name}${minStr}${scoreStr}`);
+        let bayernMatches = [];
+        for (let mDay in openLigaMatches) {
+            let matchesArr = openLigaMatches[mDay];
+            if (Array.isArray(matchesArr)) {
+                matchesArr.forEach(m => {
+                    if (m.home.toLowerCase().includes('schalke') || m.away.toLowerCase().includes('schalke')) {
+                        bayernMatches.push(Object.assign({ matchday: parseInt(mDay) }, m));
                     }
                 });
             }
-            let scorersHtml = apiScorers.length > 0 ? `<div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 6px; line-height: 1.4;">${apiScorers.join('<br>')}</div>` : "";
+        }
+        bayernMatches.sort((a, b) => a.matchday - b.matchday);
 
-            let homeGoals = 0, awayGoals = 0;
-            let hasLiveOrFinishedResult = false;
-
-            if (match.matchResults && match.matchResults.length > 0) {
-                let res = match.matchResults.find(r => r.resultName === 'Endergebnis' || r.resultName === 'Halbzeitergebnis') || match.matchResults[match.matchResults.length - 1];
-                if (res) {
-                    homeGoals = res.pointsTeam1;
-                    awayGoals = res.pointsTeam2;
-                    hasLiveOrFinishedResult = true;
-                }
-            }
-
-            if (isS04 && hasLiveOrFinishedResult) {
-                let matchId = 's04_' + match.matchID;
-                let prev = previousSchalkeScores[matchId];
-                let schalkeCurrentGoals = homeName.toLowerCase().includes('schalke') ? homeGoals : awayGoals;
+        if (bayernMatches.length === 0) {
+            modalBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">Keine Spiele gefunden.</td></tr>`;
+        } else {
+            bayernMatches.forEach(m => {
+                let hasResult = m.homeScore !== undefined && m.homeScore !== null && m.awayScore !== undefined && m.awayScore !== null;
+                let isHome = m.home.toLowerCase().includes('schalke');
                 
-                if (prev !== undefined) {
-                    let schalkePrevGoals = homeName.toLowerCase().includes('schalke') ? prev.home : prev.away;
-                    if (schalkeCurrentGoals > schalkePrevGoals) {
-                        let lastGoalObj = (match.goals && match.goals.length > 0) ? match.goals[match.goals.length - 1] : null;
-                        let scorer = lastGoalObj ? lastGoalObj.goalGetterName : '';
-                        let min = lastGoalObj ? lastGoalObj.matchMinute : '';
+                let badgeClass = '';
+                if (hasResult) {
+                    let s04Goals = isHome ? m.homeScore : m.awayScore;
+                    let oppGoals = isHome ? m.awayScore : m.homeScore;
 
-                        triggerSchalkeGoalPush(homeName, awayName, homeGoals, awayGoals, scorer, min);
-                    }
+                    if (s04Goals > oppGoals) badgeClass = 'bayern-badge-win';
+                    else if (s04Goals === oppGoals) badgeClass = 'bayern-badge-draw';
+                    else badgeClass = 'bayern-badge-loss';
                 }
-                previousSchalkeScores[matchId] = { home: homeGoals, away: awayGoals };
+
+                let homeDisplay = m.home;
+                let awayDisplay = m.away;
+
+                if (isHome) homeDisplay = '<span class="' + badgeClass + '">' + m.home + '</span>';
+                else awayDisplay = '<span class="' + badgeClass + '">' + m.away + '</span>';
+
+                let resultDisplay = hasResult ? '<strong>' + m.homeScore + ':' + m.awayScore + '</strong>' : '<span style="color:var(--text-muted);">-:-</span>';
+                let formattedDate = m.date ? m.date.split('-').reverse().join('.') : 'Offen';
+
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="text-align: center; color: var(--s04-bright-blue); font-weight: bold;">ST ${m.matchday}</td>
+                    <td style="font-size: 0.8rem; color: var(--text-muted);">${formattedDate}</td>
+                    <td style="text-align: right;">${homeDisplay}</td>
+                    <td style="text-align: center;">${resultDisplay}</td>
+                    <td>${awayDisplay}</td>
+                `;
+                modalBody.appendChild(tr);
+            });
+        }
+
+        document.getElementById('bayernMatchesModal').style.display = 'flex';
+    }
+
+    function closeBayernMatchesModal() { document.getElementById('bayernMatchesModal').style.display = 'none'; }
+
+    async function renderMatchdayTable() {
+        let tbody = document.getElementById('matchdayTableBody');
+        tbody.innerHTML = '';
+        let existingMatches = openLigaMatches[currentMatchday] || [];
+
+        if (existingMatches.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">Keine Spiele für Spieltag ' + currentMatchday + ' gefunden.</td></tr>';
+            return;
+        }
+
+        for (let m of existingMatches) {
+            let hasResult = m.homeScore !== undefined && m.homeScore !== null && m.awayScore !== undefined && m.awayScore !== null;
+            let formattedDate = m.date ? m.date.split('-').reverse().join('.') : '-';
+            let timeStr = m.time ? ' ' + m.time + ' Uhr' : '';
+            
+            let isS04Match = (m.home.toLowerCase().includes('schalke') || m.away.toLowerCase().includes('schalke'));
+
+            let resultDisplay = hasResult ? '<strong>' + m.homeScore + ':' + m.awayScore + '</strong>' : '<span style="color: var(--text-muted); font-style: italic;">vs</span>';
+            if (hasResult && m.isFinished) {
+                resultDisplay += '<div style="font-size: 0.65rem; color: #3fb950; margin-top: 2px; text-align: center;">(Endstand)</div>';
+            } else if (hasResult) {
+                resultDisplay += '<div style="font-size: 0.65rem; color: #e3b341; margin-top: 2px; text-align: center;">(Live)</div>';
             }
 
-            if (match.matchIsFinished) {
-                scoreDisplay = `<strong>${homeGoals} : ${awayGoals}</strong> <span style="font-size:0.7rem; color:var(--text-muted);">(Endstand)</span>${scorersHtml}`;
-            } else if (match.goals && match.goals.length > 0) {
-                let lastGoal = match.goals[match.goals.length - 1];
-                scoreDisplay = `<span style="color:#3fb950; font-weight:bold;">LIVE ${lastGoal.scoreTeam1}:${lastGoal.scoreTeam2}</span>${scorersHtml}`;
-            } else if (now >= dateObj && !match.matchIsFinished) {
-                scoreDisplay = `<span style="color:#3fb950; font-weight:bold;">LIVE ${homeGoals}:${awayGoals}</span>${scorersHtml}`;
+            let matchGoals = { home: [], away: [] };
+            if (hasResult) {
+                matchGoals = await fetchMatchDetails(m.matchID);
             }
 
-            let homeContent = getTeamHtml(homeName, homeIcon, true);
-            let awayContent = getTeamHtml(awayName, awayIcon, false);
+            let tr = document.createElement('tr');
+            if (isS04Match) tr.classList.add('bayern-match-row');
 
-            if (homeName.toLowerCase().includes('schalke')) homeContent = `<span class="s04-highlight">${homeContent}</span>`;
-            if (awayName.toLowerCase().includes('schalke')) awayContent = `<span class="s04-highlight">${awayContent}</span>`;
+            let homeCellContent = getTeamHtml(m.home, true, matchGoals.home);
+            let awayCellContent = getTeamHtml(m.away, false, matchGoals.away);
+
+            if (m.home.toLowerCase().includes('schalke')) homeCellContent = '<span class="bayern-highlight">' + homeCellContent + '</span>';
+            if (m.away.toLowerCase().includes('schalke')) awayCellContent = '<span class="bayern-highlight">' + awayCellContent + '</span>';
 
             tr.innerHTML = `
-                <td style="font-size: 0.8rem; color: #ffffff; vertical-align: top;">${dateStr} — ${timeStr}</td>
-                <td style="text-align: right; vertical-align: top;">${homeContent}</td>
-                <td style="text-align: center; vertical-align: top;">${scoreDisplay}</td>
-                <td style="vertical-align: top;">${awayContent}</td>
+                <td style="font-size: 0.8rem; color: #ffffff; vertical-align: top;">${formattedDate}${timeStr}</td>
+                <td style="text-align: right; vertical-align: top;">${homeCellContent}</td>
+                <td style="text-align: center; vertical-align: middle;">${resultDisplay}</td>
+                <td style="text-align: left; vertical-align: top;">${awayCellContent}</td>
             `;
             tbody.appendChild(tr);
+        }
+    }
+
+    function renderTable() {
+        let tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        let stats = {};
+
+        let allTeams = [];
+        Object.values(openLigaMatches).forEach(matchList => {
+            if (Array.isArray(matchList)) {
+                matchList.forEach(m => {
+                    if (!allTeams.includes(m.home)) allTeams.push(m.home);
+                    if (!allTeams.includes(m.away)) allTeams.push(m.away);
+                });
+            }
         });
+
+        allTeams.forEach(t => { stats[t] = { name: t, played: 0, won: 0, draw: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 }; });
+
+        Object.values(openLigaMatches).forEach(matchList => {
+            if (!Array.isArray(matchList)) return;
+            matchList.forEach(m => {
+                if (m.homeScore === undefined || m.homeScore === null || m.awayScore === undefined || m.awayScore === null) return;
+                let h = m.home, a = m.away;
+                if (!stats[h] || !stats[a]) return;
+                stats[h].played++; stats[a].played++;
+                stats[h].goalsFor += m.homeScore; stats[h].goalsAgainst += m.awayScore;
+                stats[a].goalsFor += m.awayScore; stats[a].goalsAgainst += m.homeScore;
+                if (m.homeScore > m.awayScore) { stats[h].won++; stats[h].points += 3; stats[a].lost++; }
+                else if (m.homeScore < m.awayScore) { stats[a].won++; stats[a].points += 3; stats[h].lost++; }
+                else { stats[h].draw++; stats[h].points += 1; stats[a].draw++; stats[a].points += 1; }
+            });
+        });
+
+        let sorted = Object.values(stats).sort((a, b) => b.points !== a.points ? b.points - a.points : (b.goalsFor - b.goalsAgainst) - (a.goalsFor - a.goalsAgainst));
+        
+        if (sorted.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 20px;">Tabelle wird nach den ersten Spielen berechnet.</td></tr>`;
+            return;
+        }
+
+        sorted.forEach((s, idx) => {
+            let tr = document.createElement('tr');
+            if (idx === 0) tr.classList.add('rank-first');
+            else if (idx >= sorted.length - 3 && sorted.length >= 18) tr.classList.add('rank-last');
+            if (s.name.toLowerCase().includes('schalke')) tr.classList.add('bayern-team-row');
+            let diff = s.goalsFor - s.goalsAgainst;
+
+            let teamCellHtml = getTeamHtml(s.name, false);
+
+            tr.innerHTML = '<td><strong>' + (idx + 1) + '.</strong></td><td>' + teamCellHtml + '</td><td style="text-align: center;">' + s.played + '</td><td style="text-align: center;">' + s.won + '</td><td style="text-align: center;">' + s.draw + '</td><td style="text-align: center;">' + s.lost + '</td><td style="text-align: center;">' + s.goalsFor + ':' + s.goalsAgainst + '</td><td style="text-align: center;">' + (diff > 0 ? '+' : '') + diff + '</td><td style="text-align: center; font-weight: bold;">' + s.points + '</td>';
+            tbody.appendChild(tr);
+        });
+    }
+
+    function renderBayernStats() {
+        let played = 0, won = 0, draw = 0, lost = 0, goalsFor = 0, goalsAgainst = 0, points = 0;
+        
+        Object.values(openLigaMatches).forEach(matchList => {
+            if (!Array.isArray(matchList)) return;
+            matchList.forEach(m => {
+                let isHome = m.home.toLowerCase().includes('schalke'), isAway = m.away.toLowerCase().includes('schalke');
+                if (!isHome && !isAway) return;
+                if (m.homeScore !== undefined && m.homeScore !== null && m.awayScore !== undefined && m.awayScore !== null) {
+                    played++;
+                    let myG = isHome ? m.homeScore : m.awayScore, oppG = isHome ? m.awayScore : m.homeScore;
+                    goalsFor += myG; goalsAgainst += oppG;
+                    if (myG > oppG) { won++; points += 3; } else if (myG === oppG) { draw++; points += 1; } else { lost++; }
+                }
+            });
+        });
+
+        document.getElementById('bayernStatsGrid').innerHTML = `
+            <div class="stat-card"><div class="stat-label">Spiele</div><div class="stat-value">${played}</div></div>
+            <div class="stat-card"><div class="stat-label">Siege</div><div class="stat-value" style="color: #3fb950;">${won}</div></div>
+            <div class="stat-card"><div class="stat-label">Remis</div><div class="stat-value" style="color: #e3b341;">${draw}</div></div>
+            <div class="stat-card"><div class="stat-label">Niederlagen</div><div class="stat-value" style="color: #f85149;">${lost}</div></div>
+            <div class="stat-card"><div class="stat-label">Tore</div><div class="stat-value">${goalsFor}:${goalsAgainst}</div></div>
+            <div class="stat-card"><div class="stat-label">Punkte</div><div class="stat-value">${points}</div></div>
+        `;
+    }
+
+    window.onclick = function(e) {
+        if (e.target === document.getElementById('bayernMatchesModal')) closeBayernMatchesModal();
+        if (e.target === document.getElementById('leagueScorersModal')) closeLeagueScorersModal();
+        if (e.target === document.getElementById('legendModal')) closeLegendModal();
     }
 
     showSlide(0);
     resetTimer();
-    initApp();
+    loadFromOpenLiga();
+
+    setInterval(() => {
+        if (!isAdmin) {
+            loadFromOpenLiga();
+        }
+    }, 30000);
 </script>
 
 </body>
