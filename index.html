@@ -374,7 +374,7 @@
         }
         tr:hover { background-color: rgba(0, 77, 157, 0.05); }
 
-        /* TABELLEN-ZONEN (FARBLICHE MARKIERUNGEN WIE BVB-APP) */
+        /* TABELLEN-ZONEN EXAKT WIE BVB-APP */
         tr.cl-zone td { background: rgba(35, 134, 54, 0.2) !important; border-top: 1px solid rgba(35, 134, 54, 0.3); border-bottom: 1px solid rgba(35, 134, 54, 0.3); }
         tr.el-zone td { background: rgba(51, 133, 255, 0.2) !important; border-top: 1px solid rgba(51, 133, 255, 0.3); border-bottom: 1px solid rgba(51, 133, 255, 0.3); }
         tr.ecl-zone td { background: rgba(158, 106, 3, 0.25) !important; border-top: 1px solid rgba(158, 106, 3, 0.35); border-bottom: 1px solid rgba(158, 106, 3, 0.35); }
@@ -1564,7 +1564,7 @@
             let tr = document.createElement('tr');
             let rank = idx + 1;
             
-            // Korrekte Zonen-Zuordnung wie in der BVB-App
+            // EXAKTE BVB-APP ZONEN-ZUORDNUNG
             if (rank >= 1 && rank <= 4) tr.classList.add('cl-zone');
             else if (rank === 5) tr.classList.add('el-zone');
             else if (rank === 6) tr.classList.add('ecl-zone');
