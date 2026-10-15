@@ -374,21 +374,19 @@
         }
         tr:hover { background-color: rgba(0, 77, 157, 0.05); }
 
-        tr.rank-first td {
-            background: var(--accent-green);
-            color: #3fb950;
-            font-weight: bold;
-        }
-        tr.rank-last td {
-            background: var(--accent-yellow);
-            color: #e3b341;
-        }
+        /* TABELLEN-ZONEN (FARBLICHE MARKIERUNGEN WIE BVB-APP) */
+        tr.cl-zone td { background: rgba(35, 134, 54, 0.2) !important; border-top: 1px solid rgba(35, 134, 54, 0.3); border-bottom: 1px solid rgba(35, 134, 54, 0.3); }
+        tr.el-zone td { background: rgba(51, 133, 255, 0.2) !important; border-top: 1px solid rgba(51, 133, 255, 0.3); border-bottom: 1px solid rgba(51, 133, 255, 0.3); }
+        tr.ecl-zone td { background: rgba(158, 106, 3, 0.25) !important; border-top: 1px solid rgba(158, 106, 3, 0.35); border-bottom: 1px solid rgba(158, 106, 3, 0.35); }
+        tr.relegation-zone td { background: rgba(227, 179, 64, 0.25) !important; border-top: 1px solid rgba(227, 179, 64, 0.35); border-bottom: 1px solid rgba(227, 179, 64, 0.35); }
+        tr.relegation-direct-zone td { background: rgba(180, 40, 40, 0.25) !important; border-top: 1px solid rgba(180, 40, 40, 0.35); border-bottom: 1px solid rgba(180, 40, 40, 0.35); }
+
         tr.bayern-team-row td {
             font-weight: bold;
             color: var(--s04-bright-blue);
-            background: rgba(0, 77, 157, 0.25);
-            border-top: 1px solid rgba(0, 77, 157, 0.5);
-            border-bottom: 1px solid rgba(0, 77, 157, 0.5);
+            background: rgba(0, 77, 157, 0.25) !important;
+            border-top: 1px solid rgba(0, 77, 157, 0.5) !important;
+            border-bottom: 1px solid rgba(0, 77, 157, 0.5) !important;
         }
 
         .stats-grid {
@@ -467,7 +465,6 @@
             gap: 6px;
             padding-right: 4px;
         }
-        /* Dezente Scrollbar für die Legenden-Liste */
         .legends-scroll-box::-webkit-scrollbar {
             width: 6px;
         }
@@ -708,9 +705,12 @@
                 </tbody>
             </table>
         </div>
-        <div style="display: flex; gap: 15px; margin-top: 10px; font-size: 0.75rem; color: var(--text-muted);">
-            <div style="display: flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; background: var(--accent-green); border-radius: 2px; display: inline-block;"></span> 1. Platz (Meister / Champions League)</div>
-            <div style="display: flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; background: var(--accent-yellow); border-radius: 2px; display: inline-block;"></span> Abstiegsplätze (16. - 18.)</div>
+        <div style="display: flex; gap: 15px; margin-top: 10px; font-size: 0.75rem; color: var(--text-muted); flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; background: rgba(35, 134, 54, 0.4); border-radius: 2px; display: inline-block;"></span> Champions League (1. - 4.)</div>
+            <div style="display: flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; background: rgba(51, 133, 255, 0.4); border-radius: 2px; display: inline-block;"></span> Europa League (5.)</div>
+            <div style="display: flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; background: rgba(158, 106, 3, 0.4); border-radius: 2px; display: inline-block;"></span> Conference League (6.)</div>
+            <div style="display: flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; background: rgba(227, 179, 64, 0.25); border-radius: 2px; display: inline-block;"></span> Relegation (16.)</div>
+            <div style="display: flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; background: rgba(180, 40, 40, 0.5); border-radius: 2px; display: inline-block;"></span> Abstieg (17. - 18.)</div>
         </div>
     </div>
 
@@ -1562,14 +1562,21 @@
 
         sorted.forEach((s, idx) => {
             let tr = document.createElement('tr');
-            if (idx === 0) tr.classList.add('rank-first');
-            else if (idx >= sorted.length - 3 && sorted.length >= 18) tr.classList.add('rank-last');
+            let rank = idx + 1;
+            
+            // Korrekte Zonen-Zuordnung wie in der BVB-App
+            if (rank >= 1 && rank <= 4) tr.classList.add('cl-zone');
+            else if (rank === 5) tr.classList.add('el-zone');
+            else if (rank === 6) tr.classList.add('ecl-zone');
+            else if (rank === 16) tr.classList.add('relegation-zone');
+            else if (rank >= 17) tr.classList.add('relegation-direct-zone');
+
             if (s.name.toLowerCase().includes('schalke')) tr.classList.add('bayern-team-row');
             let diff = s.goalsFor - s.goalsAgainst;
 
             let teamCellHtml = getTeamHtml(s.name, false);
 
-            tr.innerHTML = '<td><strong>' + (idx + 1) + '.</strong></td><td>' + teamCellHtml + '</td><td style="text-align: center;">' + s.played + '</td><td style="text-align: center;">' + s.won + '</td><td style="text-align: center;">' + s.draw + '</td><td style="text-align: center;">' + s.lost + '</td><td style="text-align: center;">' + s.goalsFor + ':' + s.goalsAgainst + '</td><td style="text-align: center;">' + (diff > 0 ? '+' : '') + diff + '</td><td style="text-align: center; font-weight: bold;">' + s.points + '</td>';
+            tr.innerHTML = '<td><strong>' + rank + '.</strong></td><td>' + teamCellHtml + '</td><td style="text-align: center;">' + s.played + '</td><td style="text-align: center;">' + s.won + '</td><td style="text-align: center;">' + s.draw + '</td><td style="text-align: center;">' + s.lost + '</td><td style="text-align: center;">' + s.goalsFor + ':' + s.goalsAgainst + '</td><td style="text-align: center;">' + (diff > 0 ? '+' : '') + diff + '</td><td style="text-align: center; font-weight: bold;">' + s.points + '</td>';
             tbody.appendChild(tr);
         });
     }
