@@ -22,8 +22,8 @@
             --s04-hover: #003366;
             --s04-dark: #002b5c;
             --accent-green: rgba(46, 160, 67, 0.25);
-            --accent-yellow: rgba(227, 179, 64, 0.22);
-            --s04-gold: #ffcc00;
+            --accent-white: rgba(255, 255, 255, 0.22);
+            --s04-gold: #ffffff;
             --s04-bright-blue: #3385ff;
         }
 
@@ -86,7 +86,7 @@
         .slide-caption {
             margin-top: 8px;
             font-size: 0.95rem;
-            color: var(--s04-gold);
+            color: #ffffff;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -243,7 +243,7 @@
         .header-action-btn:hover { background: rgba(0, 0, 0, 0.4); }
 
         .btn-modal-open {
-            background: var(--s04-gold);
+            background: #ffffff;
             color: #070d1a;
             border: none;
             padding: 5px 12px;
@@ -254,7 +254,7 @@
             text-transform: uppercase;
             transition: background 0.2s;
         }
-        .btn-modal-open:hover { background: #ffdb4d; }
+        .btn-modal-open:hover { background: #e0e0e0; }
 
         .dashboard-grid {
             display: grid;
@@ -272,7 +272,7 @@
         .dash-card-title {
             font-size: 0.75rem;
             font-weight: bold;
-            color: var(--s04-gold);
+            color: #ffffff;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 10px;
@@ -286,7 +286,7 @@
         }
         .dash-btn-link {
             background: var(--s04-dark);
-            color: var(--s04-gold);
+            color: #ffffff;
             border: 1px solid var(--s04-blue);
             padding: 6px 12px;
             border-radius: 4px;
@@ -396,7 +396,7 @@
         }
 
         tr.match-win td { background: rgba(46, 160, 67, 0.2) !important; border-top: 1px solid rgba(46, 160, 67, 0.4); border-bottom: 1px solid rgba(46, 160, 67, 0.4); }
-        tr.match-draw td { background: rgba(227, 179, 64, 0.2) !important; border-top: 1px solid rgba(227, 179, 64, 0.4); border-bottom: 1px solid rgba(227, 179, 64, 0.4); }
+        tr.match-draw td { background: rgba(255, 255, 255, 0.15) !important; border-top: 1px solid rgba(255, 255, 255, 0.3); border-bottom: 1px solid rgba(255, 255, 255, 0.3); }
         tr.match-loss td { background: rgba(248, 81, 73, 0.2) !important; border-top: 1px solid rgba(248, 81, 73, 0.4); border-bottom: 1px solid rgba(248, 81, 73, 0.4); }
 
         .table-container {
@@ -427,7 +427,7 @@
         tr.cl-zone td { background: rgba(35, 134, 54, 0.15); border-top: 1px solid rgba(35, 134, 54, 0.2); border-bottom: 1px solid rgba(35, 134, 54, 0.2); }
         tr.el-zone td { background: rgba(51, 133, 255, 0.15); border-top: 1px solid rgba(51, 133, 255, 0.2); border-bottom: 1px solid rgba(51, 133, 255, 0.2); }
         tr.ecl-zone td { background: rgba(158, 106, 3, 0.2); border-top: 1px solid rgba(158, 106, 3, 0.25); border-bottom: 1px solid rgba(158, 106, 3, 0.25); }
-        tr.relegation-zone td { background: rgba(227, 179, 64, 0.2); border-top: 1px solid rgba(227, 179, 64, 0.25); border-bottom: 1px solid rgba(227, 179, 64, 0.25); }
+        tr.relegation-zone td { background: rgba(255, 255, 255, 0.15); border-top: 1px solid rgba(255, 255, 255, 0.25); border-bottom: 1px solid rgba(255, 255, 255, 0.25); }
         tr.relegation-direct-zone td { background: rgba(180, 40, 40, 0.2); border-top: 1px solid rgba(180, 40, 40, 0.25); border-bottom: 1px solid rgba(180, 40, 40, 0.25); }
 
         tr.s04-team-row td {
@@ -541,7 +541,7 @@
             gap: 6px;
         }
         .visitor-counter strong {
-            color: var(--s04-gold);
+            color: #ffffff;
         }
     </style>
 </head>
@@ -575,13 +575,13 @@
         <div class="section-header">
             <span>FC Schalke 04 — Saison-Auswertung</span>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <button class="btn-modal-open" onclick="openLeagueScorersModal()" style="background: var(--s04-gold); color: #070d1a;">⚽ Bundesliga-Torschützen</button>
+                <button class="btn-modal-open" onclick="openLeagueScorersModal()">⚽ Bundesliga-Torschützen</button>
                 <button class="btn-modal-open" onclick="openS04MatchesModal()">📅 Alle Spiele</button>
             </div>
         </div>
         <div class="stats-grid" id="s04StatsGrid"></div>
         <div style="margin-top: 15px; background: #050b14; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 15px;" id="formCurveWidgetBox">
-            <div style="font-size: 0.75rem; font-weight: bold; color: var(--s04-gold); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Formverlauf (letzte 15 Spiele):</div>
+            <div style="font-size: 0.75rem; font-weight: bold; color: #ffffff; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Formverlauf (letzte 15 Spiele):</div>
             <div id="formCurveWidget" style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">Noch keine beendeten Spiele</div>
         </div>
     </div>
@@ -608,18 +608,18 @@
             <div class="dash-card-title">⭐ Schalke-Legenden (Ehrenkabine)</div>
             <div class="dash-card-content">
                 <div class="legends-scroll-box">
-                    <div class="legend-row" onclick="openLegendModal('Kuzorra & Szepan')"><span>Kuzorra & Szepan</span><span style="color:var(--s04-gold)">➔</span></div>
-                    <div class="legend-row" onclick="openLegendModal('Stan Libuda')"><span>Stan Libuda</span><span style="color:var(--s04-gold)">➔</span></div>
-                    <div class="legend-row" onclick="openLegendModal('Rolf Rüssmann')"><span>Rolf Rüssmann</span><span style="color:var(--s04-gold)">➔</span></div>
-                    <div class="legend-row" onclick="openLegendModal('Klaus Fichtel')"><span>Klaus Fichtel</span><span style="color:var(--s04-gold)">➔</span></div>
-                    <div class="legend-row" onclick="openLegendModal('Klaus Fischer')"><span>Klaus Fischer</span><span style="color:var(--s04-gold)">➔</span></div>
-                    <div class="legend-row" onclick="openLegendModal('Manuel Neuer')"><span>Manuel Neuer</span><span style="color:var(--s04-gold)">➔</span></div>
-                    <div class="legend-row" onclick="openLegendModal('Huub Stevens')"><span>Huub Stevens (Jahrhunderttrainer)</span><span style="color:var(--s04-gold)">➔</span></div>
+                    <div class="legend-row" onclick="openLegendModal('Kuzorra & Szepan')"><span>Kuzorra & Szepan</span><span style="color:#ffffff">➔</span></div>
+                    <div class="legend-row" onclick="openLegendModal('Stan Libuda')"><span>Stan Libuda</span><span style="color:#ffffff">➔</span></div>
+                    <div class="legend-row" onclick="openLegendModal('Rolf Rüssmann')"><span>Rolf Rüssmann</span><span style="color:#ffffff">➔</span></div>
+                    <div class="legend-row" onclick="openLegendModal('Klaus Fichtel')"><span>Klaus Fichtel</span><span style="color:#ffffff">➔</span></div>
+                    <div class="legend-row" onclick="openLegendModal('Klaus Fischer')"><span>Klaus Fischer</span><span style="color:#ffffff">➔</span></div>
+                    <div class="legend-row" onclick="openLegendModal('Manuel Neuer')"><span>Manuel Neuer</span><span style="color:#ffffff">➔</span></div>
+                    <div class="legend-row" onclick="openLegendModal('Huub Stevens')"><span>Huub Stevens (Jahrhunderttrainer)</span><span style="color:#ffffff">➔</span></div>
                 </div>
             </div>
         </div>
         <div class="dash-card">
-            <div class="dash-card-title"><span>📚 Schalke-Historie</span> <span style="cursor:pointer; color:var(--s04-gold)" onclick="nextHistorieFakt()">Nächster Fakt</span></div>
+            <div class="dash-card-title"><span>📚 Schalke-Historie</span> <span style="cursor:pointer; color:#ffffff" onclick="nextHistorieFakt()">Nächster Fakt</span></div>
             <div class="dash-card-content" id="historieWidget" style="font-style: italic; margin-bottom: 12px;">"FC Schalke 04 wurde am 4. Mai 1904 gegründet."</div>
             <div style="display: flex; gap: 8px;">
                 <a href="https://schalke04.de" target="_blank" class="dash-btn-link">🌐 S04.de</a>
@@ -691,7 +691,7 @@
             <div style="display: flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; background: rgba(35, 134, 54, 0.4); border-radius: 2px; display: inline-block;"></span> Champions League (1. - 4.)</div>
             <div style="display: flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; background: rgba(51, 133, 255, 0.4); border-radius: 2px; display: inline-block;"></span> Europa League (5.)</div>
             <div style="display: flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; background: rgba(158, 106, 3, 0.4); border-radius: 2px; display: inline-block;"></span> Conference League (6.)</div>
-            <div style="display: flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; background: rgba(227, 179, 64, 0.25); border-radius: 2px; display: inline-block;"></span> Relegation (16.)</div>
+            <div style="display: flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; background: rgba(255, 255, 255, 0.25); border-radius: 2px; display: inline-block;"></span> Relegation (16.)</div>
             <div style="display: flex; align-items: center; gap: 5px;"><span style="width: 12px; height: 12px; background: rgba(180, 40, 40, 0.5); border-radius: 2px; display: inline-block;"></span> Abstieg (17. - 18.)</div>
         </div>
 
@@ -773,7 +773,7 @@
 <div class="modal-overlay" id="legendModal">
     <div class="modal-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
-            <div style="font-weight: bold; font-size: 1.1rem; color: var(--s04-gold);" id="legendModalTitle">Legende</div>
+            <div style="font-weight: bold; font-size: 1.1rem; color: #ffffff;" id="legendModalTitle">Legende</div>
             <button class="btn-danger" onclick="closeLegendModal()">✕</button>
         </div>
         <div class="modal-body" id="legendModalText" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-color);">
@@ -1179,7 +1179,7 @@
         if (nextMatch && nextMatch.dateTime) {
             nextMatchDateTime = new Date(nextMatch.dateTime);
             let dt = nextMatch.date ? nextMatch.date.split('-').reverse().join('.') : '';
-            nextWidget.innerHTML = `<strong>ST ${nextMatch.matchday}</strong> — ${dt} ${nextMatch.time || ''}<br><div style="margin-top:4px; font-weight:bold;">${nextMatch.home} vs ${nextMatch.away}</div><div id="matchCountdown" style="margin-top:6px; font-size:0.8rem; color:var(--s04-gold);"></div>`;
+            nextWidget.innerHTML = `<strong>ST ${nextMatch.matchday}</strong> — ${dt} ${nextMatch.time || ''}<br><div style="margin-top:4px; font-weight:bold;">${nextMatch.home} vs ${nextMatch.away}</div><div id="matchCountdown" style="margin-top:6px; font-size:0.8rem; color:#ffffff;"></div>`;
             updateCountdown();
         } else {
             nextWidget.innerHTML = "Kein anstehendes Spiel gefunden.";
@@ -1203,7 +1203,7 @@
                 let myG = isHome ? m.homeScore : m.awayScore;
                 let oppG = isHome ? m.awayScore : m.homeScore;
                 if (myG > oppG) return '<span style="background:#2ea043; color:#fff; width:26px; height:26px; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-weight:bold; font-size:0.8rem;">S</span>';
-                else if (myG === oppG) return '<span style="background:#e3b341; color:#000; width:26px; height:26px; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-weight:bold; font-size:0.8rem;">U</span>';
+                else if (myG === oppG) return '<span style="background:#ffffff; color:#000; width:26px; height:26px; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-weight:bold; font-size:0.8rem;">U</span>';
                 else return '<span style="background:#f85149; color:#fff; width:26px; height:26px; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-weight:bold; font-size:0.8rem;">N</span>';
             }).join(' ');
             formWidget.innerHTML = badges;
@@ -1238,7 +1238,7 @@
             let html = '<div style="display:flex; flex-direction:column; gap:4px;">';
             top3.forEach((s, idx) => {
                 let medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : '🥉');
-                html += `<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem; background:#112240; padding:4px 8px; border-radius:4px;"><span>${medal} ${s.name}</span><strong style="color:var(--s04-gold);">${s.goals} Tore</strong></div>`;
+                html += `<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem; background:#112240; padding:4px 8px; border-radius:4px;"><span>${medal} ${s.name}</span><strong style="color:#ffffff;">${s.goals} Tore</strong></div>`;
             });
             html += '</div>';
             topScorersWidget.innerHTML = html;
@@ -1527,7 +1527,7 @@
         document.getElementById('s04StatsGrid').innerHTML = `
             <div class="stat-card"><div class="stat-label">Spiele</div><div class="stat-value">${played}</div></div>
             <div class="stat-card"><div class="stat-label">Siege</div><div class="stat-value" style="color: #3fb950;">${won}</div></div>
-            <div class="stat-card"><div class="stat-label">Remis</div><div class="stat-value" style="color: #e3b341;">${draw}</div></div>
+            <div class="stat-card"><div class="stat-label">Remis</div><div class="stat-value" style="color: #ffffff;">${draw}</div></div>
             <div class="stat-card"><div class="stat-label">Niederlagen</div><div class="stat-value" style="color: #f85149;">${lost}</div></div>
             <div class="stat-card"><div class="stat-label">Tore</div><div class="stat-value">${goalsFor}:${goalsAgainst}</div></div>
             <div class="stat-card"><div class="stat-label">Punkte</div><div class="stat-value">${points}</div></div>
